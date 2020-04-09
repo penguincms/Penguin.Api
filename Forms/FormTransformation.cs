@@ -1,0 +1,47 @@
+﻿using Penguin.Api.Abstractions.Interfaces;
+using System;
+using System.Collections.Generic;
+
+namespace Penguin.Api.Forms
+{
+    public class FormTransformation : ITransformation
+    {
+        public string DestinationPath { get; set; }
+        public string SourceId { get; set; }
+        public string SourcePath { get; set; }
+
+        public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
+        {
+            if (responseToCheck.Value is null)
+            {
+                throw new ArgumentNullException(nameof(responseToCheck));
+            }
+
+            if (responseToCheck.Key != SourceId)
+            {
+                return;
+            }
+
+            responseToCheck.Value.TryGetValue(SourcePath, out string sourceValue);
+
+            if (!string.IsNullOrWhiteSpace(DestinationPath))
+            {
+                destination.SetValue(DestinationPath, sourceValue);
+            }
+            else
+            {
+                destination.SetValue(SourcePath, sourceValue);
+            }
+        }
+
+        public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
+        {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            return source.TryGetValue(SourcePath, out newValue);
+        }
+    }
+}
