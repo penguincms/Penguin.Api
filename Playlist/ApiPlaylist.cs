@@ -1,4 +1,5 @@
-﻿using Penguin.Api.Abstractions.Interfaces;
+﻿using Penguin.Api.Abstractions.Enumerations;
+using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.SystemItems;
 using Penguin.Web.Headers;
 using System;
@@ -10,11 +11,19 @@ namespace MassageEnvy.Meevo.Playback
 {
     public class ApiPlaylist : IList<IPlaylistItem>
     {
-        public Action<IApiServerResponse> OnResponse = null;
+        public Action<IApiServerInteraction> OnResponse = null;
         public int Count => ((IList<IPlaylistItem>)this.Items).Count;
         public bool IsReadOnly => ((IList<IPlaylistItem>)this.Items).IsReadOnly;
         protected List<IPlaylistItem> Items { get; set; } = new List<IPlaylistItem>();
         public IPlaylistItem this[int index] { get => ((IList<IPlaylistItem>)this.Items)[index]; set => ((IList<IPlaylistItem>)this.Items)[index] = value; }
+
+        public void Reset()
+        {
+            foreach(IPlaylistItem item in Items)
+            {
+                item.Reset();
+            }
+        }
 
         public void Add(IPlaylistItem item)
         {
@@ -67,7 +76,7 @@ namespace MassageEnvy.Meevo.Playback
                 configurationResponseWrapper.Add(configuration.Key, configuration.Value);
             }
 
-            Container.PreviousResponses.Add("$", configurationResponseWrapper);
+            Container.Interactions.Add("$", configurationResponseWrapper);
 
             foreach (HttpHeader header in playlistSettings.Headers)
             {
@@ -76,20 +85,22 @@ namespace MassageEnvy.Meevo.Playback
 
             foreach (IPlaylistItem item in this)
             {
+                if(!item.Enabled)
+                {
+                    continue;
+                }
+
                 string Key = item.Id;
 
-                IApiServerResponse Value = item.Execute(Container);
+                IApiServerInteraction Value = item.Execute(Container);
 
                 OnResponse?.Invoke(Value);
 
-                Container.PreviousResponses.Add(Key, Value);
+                Container.Interactions.Add(Value);
 
-                if (!string.IsNullOrWhiteSpace(playlistSettings.StopAfterId))
+                if ((!string.IsNullOrWhiteSpace(playlistSettings.StopAfterId) && Key == playlistSettings.StopAfterId) || Value.Response.Status == ApiServerResponseStatus.Error)
                 {
-                    if (Key == playlistSettings.StopAfterId)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
 

@@ -1,5 +1,8 @@
 ﻿using Penguin.Api;
 using Penguin.Api.Abstractions.Interfaces;
+using Penguin.Api.Abstractions.ObjectArrays;
+using Penguin.Api.ObjectArrays;
+using Penguin.Api.Playlist;
 using Penguin.Web;
 using Penguin.Web.Abstractions;
 using System;
@@ -12,8 +15,8 @@ namespace MassageEnvy.Meevo.Playback
         public IWebClient Client { get; set; } = new WebClientWrapper(new WebClientEx() { FollowRedirect = false });
         public bool DisposeAfterUse { get; set; }
         public IJavascriptEngine JavascriptEngine { get; set; } = new JavascriptEngineWrapper(new Jint.Engine());
-        public Dictionary<string, IApiServerResponse> PreviousResponses { get; set; } = new Dictionary<string, IApiServerResponse>();
-
+        public IApiServerInteractionCollection Interactions { get; set; } = new ApiServerInteractionCollection();
+        public IObjectArray SessionObjects { get; set; } = new ObjectArray();
         #region IDisposable Support
 
         private bool disposedValue = false; // To detect redundant calls

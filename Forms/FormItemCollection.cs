@@ -83,7 +83,7 @@ namespace Penguin.Api.Forms
 
         public override string ToString()
         {
-            if (!(BadString is null))
+            if (!string.IsNullOrWhiteSpace(BadString) || !BackingList.Any())
             {
                 return BadString;
             }

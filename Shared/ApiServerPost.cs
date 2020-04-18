@@ -1,13 +1,18 @@
-﻿using Penguin.Api.Abstractions.Interfaces;
+﻿using Penguin.Api.Abstractions.Enumerations;
+using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Playlist;
 using System;
 using System.Collections.Generic;
 
 namespace Penguin.Api.Shared
 {
+
+
     public abstract class ApiServerPost<TRequest, TResponse> : BasePlaylistItem<TRequest, TResponse>, IPostItem where TResponse : ApiServerResponse, new() where TRequest : ApiPayload, new()
     {
-        public override TResponse Execute(IApiPlaylistSessionContainer Container)
+        public PostMethod Method { get; set; } = PostMethod.POST;
+
+        public override IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container)
         {
             if (Container is null)
             {
@@ -21,9 +26,20 @@ namespace Penguin.Api.Shared
 
         public abstract void FillBody(string source);
 
-        public override string GetBody(IApiPlaylistSessionContainer Container, string transformedUrl)
+        
+        public override string GetBody(IApiPlaylistSessionContainer Container, TRequest request)
         {
-            return Container.Client.UploadString(transformedUrl, this.Transform(Container).ToString());
+            if (Container is null)
+            {
+                throw new ArgumentNullException(nameof(Container));
+            }
+
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Container.Client.UploadString(request.Url, Method.ToString(), request.ToString());
         }
 
         public override TRequest Transform(IApiPlaylistSessionContainer Container)
@@ -35,9 +51,11 @@ namespace Penguin.Api.Shared
 
             TRequest clonedRequest = base.Transform(Container);
 
+            
+
             foreach (ITransformation transformation in Transformations)
             {
-                foreach (KeyValuePair<string, IApiServerResponse> response in Container.PreviousResponses)
+                foreach (KeyValuePair<string, IApiServerResponse> response in Container.Interactions.Responses)
                 {
                     transformation.Transform(response, clonedRequest);
                 }

@@ -2,14 +2,19 @@
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
 using Penguin.Extensions.Strings;
+using Penguin.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Penguin.Api.Json
 {
+
+
     public class JsonPostItem : ApiServerPost<JsonPostPayload, JsonResponsePayload>
     {
-        public override JsonResponsePayload Execute(IApiPlaylistSessionContainer Container)
+
+        public override IApiServerInteraction<JsonPostPayload, JsonResponsePayload> Execute(IApiPlaylistSessionContainer Container)
         {
             if (Container is null)
             {
@@ -24,14 +29,15 @@ namespace Penguin.Api.Json
                 Container.JavascriptEngine.Execute($"Playlist['{Id}'].Request = {this.Request.Body};");
             }
 
-            JsonResponsePayload Response = base.Execute(Container);
+            IApiServerInteraction<JsonPostPayload, JsonResponsePayload> Interaction = base.Execute(Container);
 
-            if (!string.IsNullOrWhiteSpace(Response.Body))
+            if (new JsonString(Interaction.Response.Body).IsValid)
             {
-                Container.JavascriptEngine.Execute($"Playlist['{Id}'].Response = {Response.Body};");
+
+                Container.JavascriptEngine.Execute($"Playlist['{Id}'].Response = {Interaction.Response.Body};");
             }
 
-            return Response;
+            return Interaction;
         }
 
         public override void FillBody(string source)
@@ -40,9 +46,87 @@ namespace Penguin.Api.Json
             this.Request.Body = source;
         }
 
-        public override string GetReplacement(string toReplace, IApiPlaylistSessionContainer Container) => JsonTransformation.GetReplacement(toReplace, Container);
+        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out string v)
+        {
+            if (!base.TryGetReplacement(toReplace, Container, out v))
+            {
+                v = JsonTransformation.GetReplacement(toReplace, Container);
+            }
+            return true;
+        }
 
         public IEnumerable<JProperty> GetTransformationPoints() => !string.IsNullOrWhiteSpace(this.Request.Body) ? GetTransformationPoints(JObject.Parse(this.Request.Body)) : new List<JProperty>();
+
+        public void TransformArray(IApiPlaylistSessionContainer Container, JProperty jprop, JArray jarray, JsonPostPayload clonedRequest)
+        {
+            if (Container is null)
+            {
+                throw new ArgumentNullException(nameof(Container));
+            }
+
+            if (jprop is null)
+            {
+                throw new ArgumentNullException(nameof(jprop));
+            }
+
+            if (jarray is null)
+            {
+                throw new ArgumentNullException(nameof(jarray));
+            }
+
+            if (clonedRequest is null)
+            {
+                throw new ArgumentNullException(nameof(clonedRequest));
+            }
+
+            JArray newArray = new JArray();
+
+            bool replace = false; ;
+
+            foreach (JToken jt in jarray)
+            {
+                string v = jt.ToString();
+
+                if (TryGetReplacement(v, Container, out string newv))
+                {
+                    v = newv;
+                    replace = true;
+                }
+
+                newArray.Add(new JValue(v));
+            }
+
+            if (replace)
+            {
+                clonedRequest.SetValue(jprop.Path, newArray.ToString(), jprop.Name.Substring(1));
+            }
+
+        }
+
+        public void TransformValue(IApiPlaylistSessionContainer Container, JProperty jprop, JsonPostPayload clonedRequest)
+        {
+            if (jprop is null)
+            {
+                throw new ArgumentNullException(nameof(jprop));
+            }
+
+            if (clonedRequest is null)
+            {
+                throw new ArgumentNullException(nameof(clonedRequest));
+            }
+
+            string SourceValue = jprop.Value.ToString();
+            string DestPath = jprop.Path;
+
+            string destPropName = DestPath.FromLast(".").Substring(1);
+
+
+            if (TryGetReplacement(SourceValue, Container, out string v))
+            {
+                clonedRequest.SetValue(DestPath, v, destPropName);
+            }
+
+        }
 
         public override JsonPostPayload Transform(IApiPlaylistSessionContainer Container)
         {
@@ -53,40 +137,22 @@ namespace Penguin.Api.Json
 
             JsonPostPayload clonedRequest = base.Transform(Container);
 
-            foreach (JProperty jprop in GetTransformationPoints())
+            List<JProperty> jprops = GetTransformationPoints().ToList();
+
+            foreach (JProperty jprop in jprops)
             {
-                string SourceValue = jprop.Value.ToString();
-                string DestPath = jprop.Path;
+                List<JToken> values = new List<JToken>();
 
-                string destPropName = DestPath.FromLast(".").Substring(1);
-
-                if (SourceValue.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase))
+                if (jprop.Value is JArray ja)
                 {
-                    //JProperty destProperty = toPostObj.SelectToken(DestPath).Parent as JProperty;
-
-                    string newValue = GetReplacement(SourceValue, Container);
-
-                    clonedRequest.SetValue(DestPath, newValue, destPropName);
-
-                    //if (newValue.StartsWith("[", StringComparison.OrdinalIgnoreCase))
-                    //{
-                    //    propParent.Add(jprop.Name.Substring(1), JArray.Parse(newValue));
-                    //}
-                    //else if (newValue.StartsWith("{", StringComparison.OrdinalIgnoreCase))
-                    //{
-                    //    propParent.Add(jprop.Name.Substring(1), JObject.Parse(newValue));
-                    //}
-                    //else
-                    //{
-                    //    propParent.Add(jprop.Name.Substring(1), new JValue(newValue));
-                    //}
-
-                    //toPost = toPostObj.ToString();
+                    TransformArray(Container, jprop, ja, clonedRequest);
                 }
                 else
                 {
-                    clonedRequest.SetValue(DestPath, base.GetReplacement(SourceValue, Container), destPropName);
+                    TransformValue(Container, jprop, clonedRequest);
                 }
+
+
             }
 
             return clonedRequest;
@@ -104,11 +170,22 @@ namespace Penguin.Api.Json
 
             if (jtoken.Type == JTokenType.Array)
             {
-                foreach (JToken jt in jtoken as JArray)
+                if (jtoken.Parent is JProperty jp)
                 {
-                    foreach (JProperty cjprop in GetTransformationPoints(jt))
+                    if (jp.Name.StartsWith("$"))
                     {
-                        yield return cjprop;
+                        yield return jp;
+                    }
+                }
+                else
+                {
+                    foreach (JToken jt in jtoken as JArray)
+                    {
+                        foreach (JProperty cjprop in GetTransformationPoints(jt))
+                        {
+                            yield return cjprop;
+                        }
+
                     }
                 }
             }

@@ -63,17 +63,22 @@ namespace Penguin.Api.Json
 
             JContainer target = destToken.Parent;
 
+            JsonString newString = Value;
+
+            object newValue = newString.IsValid ? (JToken)newString : Value;
+
             if (destToken.Parent.Type == JTokenType.Property)
             {
                 JContainer pParent = destToken.Parent.Parent;
                 destToken.Parent.Remove();
-                pParent.Add(new JProperty(newPropName ?? (destToken.Parent as JProperty).Name, Value));
+                pParent.Add(new JProperty(newPropName ?? (destToken.Parent as JProperty).Name, newValue));
             }
             else
             {
                 destToken.Remove();
-                target.Add(Value);
+                target.Add(newValue);
             }
+
 
             base.Body = destinationObject.ToString();
         }

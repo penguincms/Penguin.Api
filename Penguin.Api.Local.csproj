@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageProjectUrl>https://github.com/penguincms/Penguin.Api</PackageProjectUrl>
+    <DocumentationFile>Penguin.Api.xml</DocumentationFile>
+    <Version>1.0.0</Version>
+    <AssemblyName>Penguin.Api</AssemblyName>
+    <RootNamespace>Penguin.Api</RootNamespace>
+    <Description>Not Available</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
+    <PackageReference Include="Jint" Version="2.11.58" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <ProjectReference Include="..\Penguin.Api.Abstractions\Penguin.Api.Abstractions.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Extensions.String\Penguin.Extensions.String.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Json\Penguin.Json.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Reflection\Penguin.Reflection.Local.csproj" />
+    <ProjectReference Include="..\Penguin.SystemExtensions\Penguin.SystemExtensions.Local.csproj" />
+    <ProjectReference Include="..\Penguin.SystemExtensions.Abstractions\Penguin.SystemExtensions.Abstractions.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Web\Penguin.Web.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Web.Abstractions\Penguin.Web.Abstractions.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Web.WebClientEx\Penguin.Web.WebClientEx.Local.csproj" />
+  </ItemGroup>
+  <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
+</Project>

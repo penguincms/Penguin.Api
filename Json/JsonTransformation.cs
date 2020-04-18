@@ -39,7 +39,7 @@ namespace Penguin.Api.Json
 
                 string sourcePath = toReplace.From(".");
 
-                if (TryGetTransformedValue(Container.PreviousResponses.Single(v => v.Key == sourceId).Value, sourcePath, out string newValue))
+                if (TryGetTransformedValue(Container.Interactions.Responses[sourceId], sourcePath, out string newValue))
                 {
                     return newValue;
                 }

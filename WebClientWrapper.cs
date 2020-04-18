@@ -17,7 +17,7 @@ namespace Penguin.Api
         public string DownloadString(string url) => Client.DownloadString(url);
 
         public string UploadString(string url, string data) => Client.UploadString(url, data);
-
+        public string UploadString(string url, string method, string data) => Client.UploadString(url, method, data);
         #region IDisposable Support
 
         private bool disposedValue = false; // To detect redundant calls

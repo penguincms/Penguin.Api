@@ -1,6 +1,7 @@
 ﻿using Penguin.Api.Abstractions.Enumerations;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Forms;
+using Penguin.Api.ObjectArrays;
 using Penguin.Api.Shared;
 using Penguin.Extensions.Strings;
 using Penguin.Json.Extensions;
@@ -27,7 +28,17 @@ namespace Penguin.Api.Playlist
 
         public string Url
         {
-            get => url;
+            get {
+                string v = url;
+
+                if(this.QueryParameters.Where(k => !string.IsNullOrWhiteSpace(k.Name)).Any())
+                {
+                    v += $"?{QueryParameters}";
+                }
+
+                return v;
+
+            }
             set
             {
                 string v = value;
@@ -43,6 +54,8 @@ namespace Penguin.Api.Playlist
                 url = v;
             }
         }
+
+        public bool Enabled { get; set; } = true;
 
         public void ApplyHeaders(IApiPlaylistSessionContainer Container)
         {
@@ -75,62 +88,84 @@ namespace Penguin.Api.Playlist
             }
         }
 
-        public TResponse BuildResponse(IApiPlaylistSessionContainer Container)
+        public IApiServerInteraction<TRequest, TResponse> BuildResponse(IApiPlaylistSessionContainer Container)
         {
+
             if (Container is null)
             {
                 throw new ArgumentNullException(nameof(Container));
             }
 
+            TRequest clonedRequest = null;
             this.Response = Activator.CreateInstance<TResponse>();
 
             try
             {
-                Response.Body = GetBody(Container, GetTransformedUrl(Container));
-                Response.Status = ApiServerResponseStatus.Success;
-            }
-            catch (Exception ex)
-            {
-                if (ex is WebException wex)
+                clonedRequest = this.Transform(Container);
+
+                void FillHeaders(WebHeaderCollection headers)
                 {
-                    HttpWebResponse errorResponse = wex.Response as HttpWebResponse;
-                    if (errorResponse.StatusCode != HttpStatusCode.NotFound)
+                    if (headers != null)
                     {
-                        Response.Status = ApiServerResponseStatus.Error;
-                        this.Response.Body = new StreamReader(wex.Response.GetResponseStream()).ReadToEnd();
-                        throw;
+                        foreach (string key in headers.Keys)
+                        {
+                            Response.Headers[key] = headers[key];
+                        }
+                    }
+                }
+
+                try
+                {
+                    Response.Body = GetBody(Container, clonedRequest);
+                    Response.Status = ApiServerResponseStatus.Success;
+
+                    FillHeaders(Container.Client.ResponseHeaders);
+                }
+                catch (Exception ex)
+                {
+                    if (ex is WebException wex)
+                    {
+                        HttpWebResponse errorResponse = wex.Response as HttpWebResponse;
+                        if (errorResponse.StatusCode != HttpStatusCode.NotFound)
+                        {
+                            Response.Status = ApiServerResponseStatus.Error;
+                            this.Response.Body = new StreamReader(wex.Response.GetResponseStream()).ReadToEnd();
+
+                        }
+                        else
+                        {
+                            Response.Status = ApiServerResponseStatus.Warning;
+                        }
+
+                        FillHeaders(errorResponse.Headers);
                     }
                     else
                     {
-                        Response.Status = ApiServerResponseStatus.Warning;
+                        Response.Status = ApiServerResponseStatus.Error;
+                        throw;
                     }
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            if (Container.Client.ResponseHeaders != null)
+            } catch(Exception)
             {
-                foreach (string key in Container.Client.ResponseHeaders.Keys)
-                {
-                    Response.Headers[key] = Container.Client.ResponseHeaders[key];
-                }
+                Response.Status = ApiServerResponseStatus.Error;
             }
 
-            return Response;
+            return ApiServerInteraction.Create(clonedRequest, Response, Id);
         }
 
-        public abstract TResponse Execute(IApiPlaylistSessionContainer Container);
+        public abstract IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container);
 
-        IApiServerResponse IPlaylistItem.Execute(IApiPlaylistSessionContainer Container) => Execute(Container);
+        IApiServerInteraction IPlaylistItem.Execute(IApiPlaylistSessionContainer Container) => Execute(Container);
 
-        public abstract string GetBody(IApiPlaylistSessionContainer Container, string transformedUrl);
+        public abstract string GetBody(IApiPlaylistSessionContainer Container, TRequest request);
 
-        public virtual string GetReplacement(string toReplace, IApiPlaylistSessionContainer Container)
+        public virtual bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out string value)
         {
-            string value;
+            if (toReplace is null)
+            {
+                throw new ArgumentNullException(nameof(toReplace));
+            }
 
             if (toReplace.StartsWith("//"))
             {
@@ -142,18 +177,29 @@ namespace Penguin.Api.Playlist
                     SourcePath = toReplace.From("//").From("//", true).ToLast("//")
                 };
 
-                xPathAttributeTransformation.TryGetTransformedValue(Container.PreviousResponses[SourceId], out value);
+                return xPathAttributeTransformation.TryGetTransformedValue(Container.Interactions.Responses[SourceId], out value);
+            } else if(toReplace.StartsWith("@"))
+            {
+                value = Container.SessionObjects.Get(toReplace.Substring(1));
+                return true;
             }
             else
             {
-                string sourceId = toReplace.To(".");
+                if (toReplace.Contains("."))
+                {
+                    string sourceId = toReplace.To(".");
 
-                string sourcePath = toReplace.From(".");
+                    string sourcePath = toReplace.From(".");
 
-                Container.PreviousResponses[sourceId].TryGetValue(sourcePath, out value);
+                    if (Container.Interactions.Responses.TryGetValue(sourceId, out IApiServerResponse response))
+                    {
+                        return response.TryGetValue(sourcePath, out value);
+                    }
+                }
+
+                value = null;
+                return false;
             }
-
-            return value;
         }
 
         public virtual string GetTransformedUrl(IApiPlaylistSessionContainer Container)
@@ -161,7 +207,7 @@ namespace Penguin.Api.Playlist
             bool inReplace = false;
             string transformedUrl = this.Url;
 
-            List<string> Replacements = new List<string>();
+            List<Transformation> Replacements = new List<Transformation>();
 
             string replacement = string.Empty;
 
@@ -178,7 +224,7 @@ namespace Penguin.Api.Playlist
                     inReplace = false;
                     if (!string.IsNullOrWhiteSpace(replacement))
                     {
-                        Replacements.Add(replacement);
+                        Replacements.Add(new Transformation(replacement));
                         replacement = string.Empty;
                     }
                     continue;
@@ -190,14 +236,16 @@ namespace Penguin.Api.Playlist
                 }
             }
 
-            foreach (string thisReplacement in Replacements)
+            foreach (Transformation thisReplacement in Replacements)
             {
-                transformedUrl = transformedUrl.Replace($"{{{thisReplacement}}}", GetReplacement(thisReplacement, Container));
-            }
 
-            if (QueryParameters.Any())
-            {
-                transformedUrl = $"{transformedUrl}?{QueryParameters}";
+                if (TryGetReplacement(thisReplacement.Value, Container, out string newValue) && (newValue != null || !thisReplacement.Required))
+                {
+                    transformedUrl = transformedUrl.Replace($"{{{thisReplacement.Value}}}", newValue);
+                } else
+                {
+                    throw new Exception($"Required transformation {newValue} not found");
+                }
             }
 
             return transformedUrl;
@@ -212,17 +260,28 @@ namespace Penguin.Api.Playlist
         {
             TRequest clonedRequest = this.Request.JsonClone();
 
+            clonedRequest.Url = this.GetTransformedUrl(Container);
+
             foreach (HttpHeader header in clonedRequest.Headers)
             {
                 if (header.Key.StartsWith("$"))
                 {
                     header.Key = header.Key.Substring(1);
 
-                    header.Value = GetReplacement(header.Value, Container);
+                    if (TryGetReplacement(header.Value, Container, out string v))
+                    {
+                        header.Value = v;
+                    }
                 }
             }
 
             return clonedRequest;
+        }
+
+        public virtual void Reset()
+        {
+            this.Response = new TResponse();
+            Executed = false;
         }
     }
 }

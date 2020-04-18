@@ -5,20 +5,29 @@ using Penguin.Api.Shared;
 namespace Penguin.Api.Json
 {
     //Why is this even a thing?
-    public class JsonGetItem : BasePlaylistItem<EmptyPayload, JsonResponsePayload>
+    public class JsonGetItem : BasePlaylistItem<JsonGetPayload, JsonResponsePayload>
     {
-        public override JsonResponsePayload Execute(IApiPlaylistSessionContainer Container)
+        public override IApiServerInteraction<JsonGetPayload, JsonResponsePayload> Execute(IApiPlaylistSessionContainer Container)
         {
             this.ApplyHeaders(Container);
 
             return BuildResponse(Container);
         }
 
-        public override string GetBody(IApiPlaylistSessionContainer Container, string transformedUrl) => Container.Client.DownloadString(transformedUrl);
-
-        public override EmptyPayload Transform(IApiPlaylistSessionContainer Container)
+        public override string GetBody(IApiPlaylistSessionContainer Container, JsonGetPayload request)
         {
-            return null;
+            if (Container is null)
+            {
+                throw new System.ArgumentNullException(nameof(Container));
+            }
+
+            if (request is null)
+            {
+                throw new System.ArgumentNullException(nameof(request));
+            }
+
+            return Container.Client.DownloadString(request.Url);
         }
+
     }
 }

@@ -14,10 +14,16 @@ namespace Penguin.Api.SystemItems
         public IApiServerResponse Response { get; } = new EmptyResponsePayload();
         public List<ITransformation> Transformations { get; set; } = new List<ITransformation>();
         public string Url { get; set; }
+        public bool Enabled => false;
 
-        public IApiServerResponse Execute(IApiPlaylistSessionContainer Container)
+        public IApiServerInteraction Execute(IApiPlaylistSessionContainer Container)
         {
             throw new NotImplementedException();
+        }
+
+        public void Reset()
+        {
+
         }
     }
 }

@@ -82,7 +82,17 @@ namespace Penguin.Api.Json
         {
             if (!base.TryGetValue(path, out value))
             {
-                value = JToken.Parse(base.Body).SelectToken(path).ToString();
+                JToken token = JToken.Parse(base.Body).SelectToken(path);
+
+                if (token is null)
+                {
+                    value = null;
+                    return false;
+                }
+                else
+                {
+                    value = token.ToString();
+                }
             }
 
             return true;

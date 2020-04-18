@@ -7,6 +7,7 @@ namespace Penguin.Api.Shared
 {
     public abstract class ApiPayload : IApiPayload
     {
+        public string Url { get; set; }
         public HttpHeaderCollection Headers { get; set; } = new HttpHeaderCollection();
         IDictionary<string, string> IApiPayload.Headers => Headers;
 
@@ -28,6 +29,11 @@ namespace Penguin.Api.Shared
             }
 
             return false;
+        }
+
+        public override string ToString()
+        {
+            return string.Empty;
         }
     }
 }

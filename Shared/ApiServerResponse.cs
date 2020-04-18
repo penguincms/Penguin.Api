@@ -7,5 +7,9 @@ namespace Penguin.Api.Shared
     {
         public virtual string Body { get; set; }
         public ApiServerResponseStatus Status { get; set; }
+        public override string ToString()
+        {
+            return Body;
+        }
     }
 }
