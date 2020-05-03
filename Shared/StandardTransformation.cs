@@ -1,5 +1,6 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Extensions.Strings;
+using System;
 using System.Collections.Generic;
 
 namespace Penguin.Api.Shared
@@ -11,6 +12,11 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
+            if(destination is null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             string Path;
 
             if (SourcePath?.Contains(".") ?? false)
@@ -42,6 +48,11 @@ namespace Penguin.Api.Shared
 
         public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
         {
+            if (source is null)
+            {
+                throw new System.ArgumentNullException(nameof(source));
+            }
+
             return source.TryGetValue(SourcePath, out newValue);
         }
     }

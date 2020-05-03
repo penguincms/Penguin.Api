@@ -1,33 +1,17 @@
-﻿using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Api.Playlist;
-using Penguin.Api.Shared;
+﻿using Penguin.Api.Shared;
+using Penguin.Web.Abstractions.Interfaces;
+using System;
 
 namespace Penguin.Api.Json
 {
     //Why is this even a thing?
-    public class JsonGetItem : BasePlaylistItem<JsonGetPayload, JsonResponsePayload>
+    public class JsonGetItem : BaseGetItem<JsonGetPayload, JsonResponsePayload>
     {
-        public override IApiServerInteraction<JsonGetPayload, JsonResponsePayload> Execute(IApiPlaylistSessionContainer Container)
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonGetPayload, JsonResponsePayload> item)
         {
-            this.ApplyHeaders(Container);
-
-            return BuildResponse(Container);
+            return TryCreate(request, response, "application/json", out item);
         }
 
-        public override string GetBody(IApiPlaylistSessionContainer Container, JsonGetPayload request)
-        {
-            if (Container is null)
-            {
-                throw new System.ArgumentNullException(nameof(Container));
-            }
-
-            if (request is null)
-            {
-                throw new System.ArgumentNullException(nameof(request));
-            }
-
-            return Container.Client.DownloadString(request.Url);
-        }
 
     }
 }

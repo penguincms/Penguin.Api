@@ -1,9 +1,10 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.PostBody;
+using Penguin.Web.Abstractions.Interfaces;
 
 namespace Penguin.Api.Shared
 {
-    public class TextPostItem : ApiServerPost<TextPostPayload, GenericResponsePayload>
+    public class TextPostItem : BasePostItem<TextPostPayload, GenericResponsePayload>
     {
         public override void FillBody(string source)
         {
@@ -12,9 +13,9 @@ namespace Penguin.Api.Shared
             this.Request.Body.Convert(source);
         }
 
-        public override TextPostPayload Transform(IApiPlaylistSessionContainer Container)
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<TextPostPayload, GenericResponsePayload> item)
         {
-            return null;
+            return TryCreate(request, response, "text/plain", out item);
         }
     }
 }

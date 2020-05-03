@@ -3,17 +3,15 @@ using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
 using Penguin.Extensions.Strings;
 using Penguin.Json;
+using Penguin.Web.Abstractions.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Penguin.Api.Json
 {
-
-
-    public class JsonPostItem : ApiServerPost<JsonPostPayload, JsonResponsePayload>
+    public class JsonPostItem : BasePostItem<JsonPostPayload, JsonResponsePayload>
     {
-
         public override IApiServerInteraction<JsonPostPayload, JsonResponsePayload> Execute(IApiPlaylistSessionContainer Container)
         {
             if (Container is null)
@@ -33,7 +31,6 @@ namespace Penguin.Api.Json
 
             if (new JsonString(Interaction.Response.Body).IsValid)
             {
-
                 Container.JavascriptEngine.Execute($"Playlist['{Id}'].Response = {Interaction.Response.Body};");
             }
 
@@ -46,16 +43,35 @@ namespace Penguin.Api.Json
             this.Request.Body = source;
         }
 
-        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out string v)
-        {
-            if (!base.TryGetReplacement(toReplace, Container, out v))
-            {
-                v = JsonTransformation.GetReplacement(toReplace, Container);
-            }
-            return true;
-        }
-
         public IEnumerable<JProperty> GetTransformationPoints() => !string.IsNullOrWhiteSpace(this.Request.Body) ? GetTransformationPoints(JObject.Parse(this.Request.Body)) : new List<JProperty>();
+
+        public override JsonPostPayload Transform(IApiPlaylistSessionContainer Container)
+        {
+            if (Container is null)
+            {
+                throw new ArgumentNullException(nameof(Container));
+            }
+
+            JsonPostPayload clonedRequest = base.Transform(Container);
+
+            List<JProperty> jprops = GetTransformationPoints().ToList();
+
+            foreach (JProperty jprop in jprops)
+            {
+                List<JToken> values = new List<JToken>();
+
+                if (jprop.Value is JArray ja)
+                {
+                    TransformArray(Container, jprop, ja, clonedRequest);
+                }
+                else
+                {
+                    TransformValue(Container, jprop, clonedRequest);
+                }
+            }
+
+            return clonedRequest;
+        }
 
         public void TransformArray(IApiPlaylistSessionContainer Container, JProperty jprop, JArray jarray, JsonPostPayload clonedRequest)
         {
@@ -100,7 +116,6 @@ namespace Penguin.Api.Json
             {
                 clonedRequest.SetValue(jprop.Path, newArray.ToString(), jprop.Name.Substring(1));
             }
-
         }
 
         public void TransformValue(IApiPlaylistSessionContainer Container, JProperty jprop, JsonPostPayload clonedRequest)
@@ -120,42 +135,19 @@ namespace Penguin.Api.Json
 
             string destPropName = DestPath.FromLast(".").Substring(1);
 
-
             if (TryGetReplacement(SourceValue, Container, out string v))
             {
                 clonedRequest.SetValue(DestPath, v, destPropName);
             }
-
         }
 
-        public override JsonPostPayload Transform(IApiPlaylistSessionContainer Container)
+        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out string v)
         {
-            if (Container is null)
+            if (!base.TryGetReplacement(toReplace, Container, out v))
             {
-                throw new ArgumentNullException(nameof(Container));
+                v = JsonTransformation.GetReplacement(toReplace, Container);
             }
-
-            JsonPostPayload clonedRequest = base.Transform(Container);
-
-            List<JProperty> jprops = GetTransformationPoints().ToList();
-
-            foreach (JProperty jprop in jprops)
-            {
-                List<JToken> values = new List<JToken>();
-
-                if (jprop.Value is JArray ja)
-                {
-                    TransformArray(Container, jprop, ja, clonedRequest);
-                }
-                else
-                {
-                    TransformValue(Container, jprop, clonedRequest);
-                }
-
-
-            }
-
-            return clonedRequest;
+            return true;
         }
 
         private static IEnumerable<JProperty> GetTransformationPoints(JToken jtoken)
@@ -170,12 +162,11 @@ namespace Penguin.Api.Json
 
             if (jtoken.Type == JTokenType.Array)
             {
-                if (jtoken.Parent is JProperty jp)
+                if (jtoken.Parent is JProperty jp && jp.Name.StartsWith("$", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (jp.Name.StartsWith("$"))
-                    {
-                        yield return jp;
-                    }
+
+                    yield return jp;
+
                 }
                 else
                 {
@@ -185,7 +176,6 @@ namespace Penguin.Api.Json
                         {
                             yield return cjprop;
                         }
-
                     }
                 }
             }
@@ -195,7 +185,7 @@ namespace Penguin.Api.Json
         {
             foreach (JProperty jprop in jobject.Properties())
             {
-                if (jprop.Name.StartsWith("$") && jprop.Value.Type == JTokenType.String)
+                if (jprop.Name.StartsWith("$", StringComparison.OrdinalIgnoreCase) && jprop.Value.Type == JTokenType.String)
                 {
                     yield return jprop;
                 }
@@ -207,6 +197,11 @@ namespace Penguin.Api.Json
                     }
                 }
             }
+        }
+
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonPostPayload, JsonResponsePayload> item)
+        {
+            return TryCreate(request, response, "application/json", out item);
         }
     }
 }

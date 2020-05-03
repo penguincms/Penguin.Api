@@ -1,10 +1,13 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
+using Penguin.Web.Abstractions.Interfaces;
+using System;
 
 namespace Penguin.Api.Forms
 {
-    public class FormPostItem : ApiServerPost<FormPostPayload, GenericResponsePayload>
+    public class FormPostItem : BasePostItem<FormPostPayload, GenericResponsePayload>
     {
+
         public override void FillBody(string source)
         {
             this.Request = this.Request ?? new FormPostPayload();
@@ -24,13 +27,28 @@ namespace Penguin.Api.Forms
                 }
 
                 fi.Name = fi.Name.Substring(1);
-                if(base.TryGetReplacement(fi.Value, Container, out string v))
+                if (base.TryGetReplacement(fi.Value, Container, out string v))
                 {
                     fi.Value = v;
                 }
             }
 
             return clonedRequest;
+        }
+
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<FormPostPayload, GenericResponsePayload> item)
+        {
+            if(TryCreate(request, response, "application/x-www-form-urlencoded", out item))
+            {
+                item.Request.Body = new FormItemCollection(request.BodyText);
+
+                return true;
+            } else
+            {
+                return false;
+            }
+
+
         }
     }
 }

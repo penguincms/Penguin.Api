@@ -15,7 +15,7 @@ namespace Penguin.Api.PostBody
         {
         }
 
-        public static implicit operator string(TextPostBody d) => d.Value;
+        public static implicit operator string(TextPostBody d) => d?.Value;
 
         public static implicit operator TextPostBody(string b) => new TextPostBody(b);
 

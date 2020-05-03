@@ -57,6 +57,8 @@ namespace Penguin.Api.Forms
 
             BackingList.Clear();
 
+            collection = collection.TrimEnd('&');
+
             if (collection.Count(c => c == '&') != collection.Count(c => c == '=') - 1)
             {
                 BadString = collection;

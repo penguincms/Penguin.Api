@@ -1,26 +1,13 @@
-﻿using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Api.Playlist;
+﻿using Penguin.Web.Abstractions.Interfaces;
 using System;
 
 namespace Penguin.Api.Shared
 {
-    public class HttpGetItem : BasePlaylistItem<EmptyPayload, GenericResponsePayload>
+    public class HttpGetItem : BaseGetItem<EmptyPayload, GenericResponsePayload>
     {
-        public override IApiServerInteraction<EmptyPayload, GenericResponsePayload> Execute(IApiPlaylistSessionContainer Container)
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<EmptyPayload, GenericResponsePayload> item)
         {
-            this.ApplyHeaders(Container);
-
-            return BuildResponse(Container);
-        }
-
-        public override string GetBody(IApiPlaylistSessionContainer Container, EmptyPayload request)
-        {
-            if (Container is null)
-            {
-                throw new ArgumentNullException(nameof(Container));
-            }
-
-            return Container.Client.DownloadString(request.Url);
+            return TryCreate(request, response, (ContentType) => (ContentType is null || !ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)), out item);
         }
     }
 }

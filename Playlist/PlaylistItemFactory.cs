@@ -4,6 +4,8 @@ using Penguin.Api.Forms;
 using Penguin.Api.Json;
 using Penguin.Api.Shared;
 using Penguin.Api.SystemItems;
+using Penguin.Api.Xml;
+using Penguin.Reflection;
 using Penguin.Web;
 using Penguin.Web.Headers;
 using System;
@@ -14,6 +16,20 @@ namespace Penguin.Api.Playlist
 {
     public static class PlaylistItemFactory
     {
+        private static List<IHttpPlaylistItem> playlistTemplates;
+
+        public static IEnumerable<IHttpPlaylistItem> PlaylistTemplates
+        {
+            get
+            {
+                if(playlistTemplates is null)
+                {
+                    playlistTemplates = TypeFactory.GetAllImplementations<IHttpPlaylistItem>().Select(t => Activator.CreateInstance(t) as IHttpPlaylistItem).ToList();
+                }
+
+                return playlistTemplates;
+            }
+        }
         public static IPlaylistItem GetPlaylistItem(string Name, HttpServerInteraction interaction)
         {
             if (interaction is null)
@@ -23,6 +39,7 @@ namespace Penguin.Api.Playlist
 
             return GetPlaylistItem(Name, interaction.Request, interaction.Response);
         }
+
         public static IPlaylistItem GetPlaylistItem(string Name, HttpServerRequest request, HttpServerResponse response = null)
         {
             if (Name is null)
@@ -35,107 +52,33 @@ namespace Penguin.Api.Playlist
                 throw new ArgumentNullException(nameof(request));
             }
 
-            bool isJson = false;
-            bool isForm = false;
-            bool isText = false;
-            bool isBinary = false;
-            bool isEmpty = false;
+            IHttpPlaylistItem item = null;
 
-            string contentType = request.Headers["Content-Type"] ?? string.Empty;
-
-            if (contentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            foreach(IHttpPlaylistItem checkItem in PlaylistTemplates)
             {
-                isJson = true;
-            }
-            else if (contentType.StartsWith("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase))
-            {
-                isForm = true;
-            }
-            else if (contentType.StartsWith("text/plain", StringComparison.OrdinalIgnoreCase))
-            {
-                isText = true;
-            }
-            else if (string.IsNullOrEmpty(contentType))
-            {
-                isEmpty = true;
-            }
-            else
-            {
-                isBinary = true;
-            }
-
-            IPlaylistItem toReturn;
-
-            List<PostMethod> postMethods = new List<PostMethod>();
-
-            foreach (PostMethod m in Enum.GetValues(typeof(PostMethod))) {
-                postMethods.Add(m);
-            }
-
-
-            if (postMethods.Any(m => m.ToString() == request.Method) && isEmpty)
-            {
-                toReturn = new EmptyPostItem();
-            } else if (postMethods.Any(m => m.ToString() == request.Method) && isJson)
-            {
-                toReturn = new JsonPostItem();
-            }
-            else if (request.Method == "GET" && !isJson)
-            {
-                toReturn = new HttpGetItem();
-            }
-            else if (postMethods.Any(m => m.ToString() == request.Method) && isForm)
-            {
-                toReturn = new FormPostItem();
-            }
-            else if (request.Method == "GET" && isJson)
-            {
-                toReturn = new JsonGetItem();
-            }
-            else if (request.Method == "CONNECT")
-            {
-                toReturn = new ConnectItem();
-            }
-            else if (postMethods.Any(m => m.ToString() == request.Method) && isText)
-            {
-                toReturn = new TextPostItem();
-            }
-            else
-            {
-                toReturn = new UnsupportedPlaylistItem(request, response);
-            }
-
-            toReturn.Id = Name;
-
-            if (toReturn is IPostItem postItem)
-            {
-                postItem.FillBody(request.BodyText);
-
-                postItem.Method = postMethods.Single(m => m.ToString() == request.Method);
-            }
-
-            foreach (HttpHeader header in request.Headers)
-            {
-                toReturn.Request.Headers.Add(header.Key, header.Value);
-            }
-
-            if (response != null)
-            {
-                foreach (HttpHeader header in request.Headers)
+                if(checkItem.TryCreate(request, response, out item))
                 {
-                    toReturn.Response.Headers.Add(header.Key, header.Value);
+                    break;
                 }
-
-                toReturn.Response.Body = response.BodyText;
             }
 
-            toReturn.Url = request.Url;
+            if(item is null)
+            {
+                item = new UnsupportedHttpPlaylistItem(request, response);
+            }
 
-            return toReturn;
+            item.Id = Name;          
+
+            return item;
         }
 
         public static IEnumerable<IPlaylistItem> GetPlaylistItems(HttpServerCapture capture)
         {
+            if (capture is null)
+            {
+                throw new ArgumentNullException(nameof(capture));
+            }
+
             for (int i = 0; i < capture.Count; i++)
             {
                 HttpServerInteraction interaction = capture[i];

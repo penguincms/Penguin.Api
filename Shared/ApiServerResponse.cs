@@ -1,5 +1,6 @@
 ﻿using Penguin.Api.Abstractions.Enumerations;
 using Penguin.Api.Abstractions.Interfaces;
+using System;
 
 namespace Penguin.Api.Shared
 {
@@ -7,6 +8,8 @@ namespace Penguin.Api.Shared
     {
         public virtual string Body { get; set; }
         public ApiServerResponseStatus Status { get; set; }
+        public Exception Exception { get; set; }
+
         public override string ToString()
         {
             return Body;

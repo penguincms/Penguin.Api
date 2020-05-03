@@ -3,7 +3,6 @@ using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Extensions.Strings;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Penguin.Api.Json
 {
@@ -68,6 +67,11 @@ namespace Penguin.Api.Json
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
+            if(destination is null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             if (responseToCheck.Key == SourceId)
             {
                 if (responseToCheck.Value.TryGetValue(SourcePath, out string value))

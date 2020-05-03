@@ -1,7 +1,7 @@
 ﻿using Penguin.Web.Headers;
 using System.Collections.Generic;
 
-namespace MassageEnvy.Meevo.Playback
+namespace Penguin.Api.Playlist
 {
     public class PlaylistConfiguration
     {

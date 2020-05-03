@@ -16,6 +16,11 @@ namespace Penguin.Api.Json
 
         public override void SetValue(string path, string Value, string newPropName)// Copied from post
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new System.ArgumentException("path can not be null or whitespace", nameof(path));
+            }
+
             JObject destinationObject = JObject.Parse(base.Body);
 
             JToken destToken = destinationObject.SelectToken(path);

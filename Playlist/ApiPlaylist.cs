@@ -7,23 +7,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MassageEnvy.Meevo.Playback
+namespace Penguin.Api.Playlist
 {
     public class ApiPlaylist : IList<IPlaylistItem>
     {
-        public Action<IApiServerInteraction> OnResponse = null;
+        public Action<IApiServerInteraction> OnResponse { get; set; } = null;
         public int Count => ((IList<IPlaylistItem>)this.Items).Count;
         public bool IsReadOnly => ((IList<IPlaylistItem>)this.Items).IsReadOnly;
         protected List<IPlaylistItem> Items { get; set; } = new List<IPlaylistItem>();
         public IPlaylistItem this[int index] { get => ((IList<IPlaylistItem>)this.Items)[index]; set => ((IList<IPlaylistItem>)this.Items)[index] = value; }
-
-        public void Reset()
-        {
-            foreach(IPlaylistItem item in Items)
-            {
-                item.Reset();
-            }
-        }
 
         public void Add(IPlaylistItem item)
         {
@@ -85,20 +77,32 @@ namespace MassageEnvy.Meevo.Playback
 
             foreach (IPlaylistItem item in this)
             {
-                if(!item.Enabled)
+                if (!item.Enabled)
                 {
                     continue;
                 }
 
                 string Key = item.Id;
 
-                IApiServerInteraction Value = item.Execute(Container);
+                if (item is IHttpPlaylistItem hpi)
+                {
+                    IApiServerInteraction Value = hpi.Execute(Container);
 
-                OnResponse?.Invoke(Value);
+                    OnResponse?.Invoke(Value);
 
-                Container.Interactions.Add(Value);
+                    Container.Interactions.Add(Value);
 
-                if ((!string.IsNullOrWhiteSpace(playlistSettings.StopAfterId) && Key == playlistSettings.StopAfterId) || Value.Response.Status == ApiServerResponseStatus.Error)
+                    if (Value.Response.Status == ApiServerResponseStatus.Error)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    item.Execute(Container);
+                }
+
+                if (!string.IsNullOrWhiteSpace(playlistSettings.StopAfterId) && Key == playlistSettings.StopAfterId)
                 {
                     break;
                 }
@@ -164,6 +168,14 @@ namespace MassageEnvy.Meevo.Playback
         public void RemoveAt(int index)
         {
             ((IList<IPlaylistItem>)this.Items).RemoveAt(index);
+        }
+
+        public void Reset()
+        {
+            foreach (IPlaylistItem item in Items)
+            {
+                item.Reset();
+            }
         }
 
         public bool TryFind(string id, out IPlaylistItem result)

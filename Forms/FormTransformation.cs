@@ -12,6 +12,11 @@ namespace Penguin.Api.Forms
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
+            if(destination is null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             if (responseToCheck.Value is null)
             {
                 throw new ArgumentNullException(nameof(responseToCheck));

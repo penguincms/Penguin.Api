@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Penguin.Web.Abstractions.Interfaces;
 
 namespace Penguin.Api.Shared
 {
-    public class EmptyPostItem : ApiServerPost<EmptyPayload, GenericResponsePayload>
+    public class EmptyPostItem : BasePostItem<EmptyPayload, GenericResponsePayload>
     {
         public override void FillBody(string source)
         {
+        }
 
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<EmptyPayload, GenericResponsePayload> item)
+        {
+            return TryCreate(request, response, (contentType) => string.IsNullOrWhiteSpace(contentType), out item);
         }
     }
 }

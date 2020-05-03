@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Penguin.Api.Abstractions.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace Penguin.Api.Shared
@@ -13,6 +14,11 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
+            if(destination is null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             if (responseToCheck.Key == SourceId)
             {
                 if (TryGetTransformedValue(responseToCheck.Value, out string newValue))
@@ -24,6 +30,11 @@ namespace Penguin.Api.Shared
 
         public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
         {
+            if (source is null)
+            {
+                throw new System.ArgumentNullException(nameof(source));
+            }
+
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
             htmlDocument.LoadHtml(source.Body);
             HtmlNode signupFormIdElement = htmlDocument.DocumentNode.SelectSingleNode(SourcePath);

@@ -14,10 +14,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Penguin.Reflection" Version="4.0.9-T9UPDS1" />
     <PackageReference Include="Penguin.Web.WebClientEx" Version="1.0.1-T9UPDS1" />
-    <PackageReference Include="Penguin.SystemExtensions" Version="1.0.1-T9UPDS1" />
-    <PackageReference Include="Penguin.Web" Version="1.0.1-T9UPIX4" />
     <PackageReference Include="Penguin.Json" Version="1.0.1-T9UR2K9" />
-    <PackageReference Include="Penguin.Api.Abstractions" Version="1.0.1-T9UT994" />
+    <PackageReference Include="Penguin.Web" Version="1.0.1-T9V819P" />
+    <PackageReference Include="Penguin.Api.Abstractions" Version="1.0.1-T9VJ25G" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
 </Project>

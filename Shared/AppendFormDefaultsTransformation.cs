@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Penguin.Api.Abstractions.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace Penguin.Api.Shared
@@ -13,12 +14,35 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
+            if(destination is null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
             if (responseToCheck.Key == this.SourceId)
             {
                 HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
                 htmlDocument.LoadHtml(responseToCheck.Value.Body);
 
-                HtmlAgilityPack.HtmlNode node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@name='{this.FormName}']");
+                HtmlAgilityPack.HtmlNode node = null;
+
+                if (this.FormName.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+                {
+                    node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@id='{this.FormName.Substring(1)}']");
+
+                    if(node is null)
+                    {
+                        throw new NullReferenceException($"Form with id \"{this.FormName.Substring(1)}\" was not found on response \"{this.SourceId}\"");
+                    }
+                } else
+                {
+                    node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@name='{this.FormName}']");
+
+                    if (node is null)
+                    {
+                        throw new NullReferenceException($"Form with name \"{this.FormName}\" was not found on response \"{this.SourceId}\"");
+                    }
+                }
 
                 foreach (HtmlNode cnode in node.SelectNodes(".//input[@name]"))
                 {
@@ -40,6 +64,11 @@ namespace Penguin.Api.Shared
                         }
                     }
                 }
+            }
+
+            if (destination is null)
+            {
+                throw new System.ArgumentNullException(nameof(destination));
             }
         }
 

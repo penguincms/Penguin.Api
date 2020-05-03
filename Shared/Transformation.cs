@@ -1,24 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Penguin.Api.Shared
 {
     public class Transformation
     {
+        public bool Required { get; set; }
+
+        public string Value { get; set; }
+
         public Transformation(string value)
         {
-            if(value.StartsWith("?"))
+            if (value is null)
+            {
+                throw new System.ArgumentNullException(nameof(value));
+            }
+
+            if (value.StartsWith("?", StringComparison.OrdinalIgnoreCase))
             {
                 Required = false;
                 Value = value.Substring(1);
-            } else
+            }
+            else
             {
                 Required = true;
                 Value = value;
             }
         }
-        public string Value { get; set; }
-        public bool Required { get; set; }
     }
 }

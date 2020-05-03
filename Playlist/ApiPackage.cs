@@ -1,4 +1,4 @@
-﻿namespace MassageEnvy.Meevo.Playback
+﻿namespace Penguin.Api.Playlist
 {
     public class ApiPackage
     {
