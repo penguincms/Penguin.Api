@@ -87,12 +87,36 @@ namespace Penguin.Api.Shared
             {
                 string v = value;
 
-                if (v?.Contains("?") ?? false)
+                if (v != null)
                 {
-                    string parameters = v.From("?");
-                    v = v.To("?");
+                    int inBraces = 0;
+                    int qStart = -1;
 
-                    this.QueryParameters = new FormItemCollection(parameters);
+                    for(int i = 0; i < v.Length; i++)
+                    {
+                        if(v[i] == '{')
+                        {
+                            inBraces++;
+                        }
+
+                        if(inBraces == 0 && v[i] == '?')
+                        {
+                            qStart = i;
+                        }
+
+                        if (v[i] == '}')
+                        {
+                            inBraces--;
+                        }
+                    }
+
+                    if (qStart >= 0)
+                    {
+                        string parameters = v.Substring(qStart + 1);
+                        v = v.Substring(0, qStart);
+
+                        this.QueryParameters = new FormItemCollection(parameters);
+                    }
                 }
 
                 url = v;
@@ -243,9 +267,9 @@ namespace Penguin.Api.Shared
 
             foreach (Transformation thisReplacement in Replacements)
             {
-                if (TryGetReplacement(thisReplacement.Value, Container, out string newValue) && (newValue != null || !thisReplacement.Required))
+                if (TryGetReplacement(thisReplacement.Value, Container, out object newValue) && (newValue != null || !thisReplacement.Required))
                 {
-                    transformedUrl = transformedUrl.Replace($"{{{thisReplacement.Value}}}", newValue);
+                    transformedUrl = transformedUrl.Replace($"{{{thisReplacement.Value}}}", newValue.ToString());
                 }
                 else
                 {
@@ -268,9 +292,9 @@ namespace Penguin.Api.Shared
                     {
                         queryParameter.Name = queryParameter.Name.Substring(1);
 
-                        if (TryGetReplacement(queryParameter.Value, Container, out string newValue))
+                        if (TryGetReplacement(queryParameter.Value, Container, out object newValue))
                         {
-                            queryParameter.Value = newValue;
+                            queryParameter.Value = newValue?.ToString();
                         }
                     }
                 }
@@ -304,9 +328,9 @@ namespace Penguin.Api.Shared
                 {
                     header.Key = header.Key.Substring(1);
 
-                    if (TryGetReplacement(header.Value, Container, out string v))
+                    if (TryGetReplacement(header.Value, Container, out object v))
                     {
-                        header.Value = v;
+                        header.Value = v.ToString();
                     }
                 }
             }
@@ -318,7 +342,7 @@ namespace Penguin.Api.Shared
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
-        public virtual bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out string value)
+        public virtual bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object value)
         {
             if (toReplace is null)
             {

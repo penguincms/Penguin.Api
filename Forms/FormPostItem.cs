@@ -27,9 +27,9 @@ namespace Penguin.Api.Forms
                 }
 
                 fi.Name = fi.Name.Substring(1);
-                if (base.TryGetReplacement(fi.Value, Container, out string v))
+                if (base.TryGetReplacement(fi.Value, Container, out object v))
                 {
-                    fi.Value = v;
+                    fi.Value = v.ToString();
                 }
             }
 

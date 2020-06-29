@@ -12,12 +12,12 @@ namespace Penguin.Api.Xml
             this.Headers.Add("Content-Type", "text/xml");
         }
 
-        public override void SetValue(string path, string Value, string newPropName) // Copied from response
+        public override void SetValue(string path, object Value, string newPropName) // Copied from response
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryGetValue(string path, out string value)
+        public override bool TryGetValue(string path, out object value)
         {
             throw new NotImplementedException();
         }

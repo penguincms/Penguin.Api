@@ -25,7 +25,8 @@ namespace Penguin.Api.Shared
             }
             else
             {
-                destination.TryGetValue(DestinationPath, out Path);
+                destination.TryGetValue(DestinationPath, out object oPath);
+                Path = oPath.ToString();
             }
 
             string Key;
@@ -41,12 +42,12 @@ namespace Penguin.Api.Shared
 
             if (responseToCheck.Key == Key)
             {
-                responseToCheck.Value.TryGetValue(Path, out string value);
+                responseToCheck.Value.TryGetValue(Path, out object value);
                 destination.SetValue(DestinationPath, value);
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
         {
             if (source is null)
             {

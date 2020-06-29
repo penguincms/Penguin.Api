@@ -27,7 +27,8 @@ namespace Penguin.Api.Playlist
 
         [Display(Order = 500)]
         public List<ITransformation> Transformations { get; set; } = new List<ITransformation>();
-
+        [Display(Order = -1400)]
+        public List<IExecutionCondition> Conditions { get; set; } = new List<IExecutionCondition>();
 
         public abstract void Reset();
     }

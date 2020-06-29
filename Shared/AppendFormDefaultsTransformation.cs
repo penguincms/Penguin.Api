@@ -58,7 +58,7 @@ namespace Penguin.Api.Shared
                     {
                         string name = cnode.Attributes["name"].Value;
 
-                        if (!destination.TryGetValue(name, out string _))
+                        if (!destination.TryGetValue(name, out object _))
                         {
                             destination.SetValue(name, valueAttribute.Value);
                         }
@@ -72,7 +72,7 @@ namespace Penguin.Api.Shared
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
         {
             newValue = null;
             return false;

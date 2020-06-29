@@ -27,7 +27,7 @@ namespace Penguin.Api.Forms
                 return;
             }
 
-            responseToCheck.Value.TryGetValue(SourcePath, out string sourceValue);
+            responseToCheck.Value.TryGetValue(SourcePath, out object sourceValue);
 
             if (!string.IsNullOrWhiteSpace(DestinationPath))
             {
@@ -39,7 +39,7 @@ namespace Penguin.Api.Forms
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
         {
             if (source is null)
             {

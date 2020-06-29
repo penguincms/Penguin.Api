@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageProjectUrl>https://github.com/penguincms/Penguin.Api</PackageProjectUrl>
     <DocumentationFile>Penguin.Api.xml</DocumentationFile>
-    <Version>1.0.0</Version>
+    <Version>5.0.0</Version>
     <AssemblyName>Penguin.Api</AssemblyName>
     <RootNamespace>Penguin.Api</RootNamespace>
     <Description>Not Available</Description>

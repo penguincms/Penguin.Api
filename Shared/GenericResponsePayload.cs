@@ -34,7 +34,7 @@ namespace Penguin.Api.Shared
             set => base.Body = value;
         }
 
-        public override void SetValue(string path, string Value, string newPropName)
+        public override void SetValue(string path, object Value, string newPropName)
         {
             throw new NotImplementedException();
         }

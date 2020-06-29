@@ -13,7 +13,7 @@ namespace Penguin.Api.Shared
         public int MaximumWaitMs { get; set; }
         public int MinimumWaitMs { get; set; }
         List<ITransformation> IPlaylistItem.Transformations { get; set; } = new List<ITransformation>();
-
+        List<IExecutionCondition> IPlaylistItem.Conditions { get; set; } = new List<IExecutionCondition>();
         public void Execute(IApiPlaylistSessionContainer Container)
         {
             System.Threading.Thread.Sleep(random.Next(MinimumWaitMs, MaximumWaitMs));

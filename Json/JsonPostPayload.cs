@@ -14,11 +14,39 @@ namespace Penguin.Api.Json
             this.Headers.Add("Content-Type", "application/json;charset=UTF-8");
         }
 
-        public override void SetValue(string path, string Value, string newPropName) // Copied from response
+        public override void SetValue(string path, object Value, string newPropName) // Copied from response
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new System.ArgumentException("message", nameof(path));
+            }
+
+            if (path == "$")
+            {
+
+
+                JToken newToken = (Value as JToken) ?? JToken.Parse(Value.ToString());
+
+
+                JsonString oldString = new JsonString(this.Body);
+
+                if (oldString.IsValid &&
+                    JToken.Parse(oldString) is JObject oldObject &&
+                                   newToken is JObject newObject)
+                {
+
+                    foreach (JProperty prop in oldObject.Properties())
+                    {
+                        newObject.Remove(prop.Name);
+
+                        newObject.Add(prop.Name, prop.Value);
+                    }
+
+                }
+
+                base.Body = newToken.ToString();
+
+                return;
             }
 
             JObject destinationObject = JObject.Parse(base.Body);
@@ -68,9 +96,18 @@ namespace Penguin.Api.Json
 
             JContainer target = destToken.Parent;
 
-            JsonString newString = Value;
+            object newValue;
 
-            object newValue = newString.IsValid ? (JToken)newString : Value;
+            if (Value is JToken)
+            {
+                newValue = Value;
+            }
+            else
+            {
+                JsonString newString = Value?.ToString();
+
+                newValue = newString.IsValid ? (JToken)newString : Value;
+            }
 
             if (destToken.Parent.Type == JTokenType.Property)
             {
@@ -87,11 +124,11 @@ namespace Penguin.Api.Json
             base.Body = destinationObject.ToString();
         }
 
-        public override bool TryGetValue(string path, out string value)
+        public override bool TryGetValue(string path, out object value)
         {
             if (!base.TryGetValue(path, out value))
             {
-                value = JToken.Parse(base.Body).SelectToken(path).ToString();
+                value = JToken.Parse(base.Body).SelectToken(path);
             }
 
             return true;

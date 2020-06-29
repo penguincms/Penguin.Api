@@ -82,6 +82,12 @@ namespace Penguin.Api.Playlist
                     continue;
                 }
 
+
+                if((item.Conditions?.Any() ?? false) && !item.Conditions.All(c => c.ShouldExecute(Container)))
+                {
+                    continue;
+                }
+
                 string Key = item.Id;
 
                 if (item is IHttpPlaylistItem hpi)

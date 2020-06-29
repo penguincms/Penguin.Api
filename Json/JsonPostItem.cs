@@ -101,15 +101,22 @@ namespace Penguin.Api.Json
 
             foreach (JToken jt in jarray)
             {
-                string v = jt.ToString();
+                JToken v = jt;
 
-                if (TryGetReplacement(v, Container, out string newv))
+                if (TryGetReplacement(v.ToString(), Container, out object newv))
                 {
-                    v = newv;
+                    if (newv is JToken jto)
+                    {
+                        v = jto;
+                    } else
+                    {
+                        v = new JValue(newv.ToString());
+                    }
+
                     replace = true;
                 }
 
-                newArray.Add(new JValue(v));
+                newArray.Add(v);
             }
 
             if (replace)
@@ -135,13 +142,13 @@ namespace Penguin.Api.Json
 
             string destPropName = DestPath.FromLast(".").Substring(1);
 
-            if (TryGetReplacement(SourceValue, Container, out string v))
+            if (TryGetReplacement(SourceValue, Container, out object v))
             {
                 clonedRequest.SetValue(DestPath, v, destPropName);
             }
         }
 
-        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out string v)
+        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object v)
         {
             if (!base.TryGetReplacement(toReplace, Container, out v))
             {

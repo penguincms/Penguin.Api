@@ -12,16 +12,16 @@ namespace Penguin.Api.Shared
         IDictionary<string, string> IApiPayload.Headers => Headers;
         public string Url { get; set; }
 
-        public virtual void SetValue(string path, string Value) => SetValue(path, Value, null);
+        public virtual void SetValue(string path, object Value) => SetValue(path, Value, null);
 
-        public abstract void SetValue(string path, string Value, string newPropName);
+        public abstract void SetValue(string path, object Value, string newPropName);
 
         public override string ToString()
         {
             return string.Empty;
         }
 
-        public virtual bool TryGetValue(string path, out string value)
+        public virtual bool TryGetValue(string path, out object value)
         {
             if (path is null)
             {

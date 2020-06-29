@@ -21,14 +21,14 @@ namespace Penguin.Api.Shared
 
             if (responseToCheck.Key == SourceId)
             {
-                if (TryGetTransformedValue(responseToCheck.Value, out string newValue))
+                if (TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
                     destination.SetValue(DestinationPath, newValue);
                 }
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out string newValue)
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
         {
             if (source is null)
             {

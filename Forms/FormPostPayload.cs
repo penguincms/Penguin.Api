@@ -10,20 +10,20 @@ namespace Penguin.Api.Forms
             this.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
         }
 
-        public override void SetValue(string path, string Value, string newPropName)
+        public override void SetValue(string path, object Value, string newPropName)
         {
             if (newPropName != null)
             {
                 this.Body.Remove(path);
-                this.Body.Add(newPropName, Value);
+                this.Body.Add(newPropName, Value?.ToString());
             }
             else
             {
-                this.Body[path] = Value;
+                this.Body[path] = Value?.ToString();
             }
         }
 
-        public override bool TryGetValue(string path, out string value)
+        public override bool TryGetValue(string path, out object value)
         {
             if (!base.TryGetValue(path, out value))
             {

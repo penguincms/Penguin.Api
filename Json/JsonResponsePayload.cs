@@ -14,7 +14,7 @@ namespace Penguin.Api.Json
             set => base.Body = value;
         }
 
-        public override void SetValue(string path, string Value, string newPropName)// Copied from post
+        public override void SetValue(string path, object Value, string newPropName)// Copied from post
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -83,7 +83,7 @@ namespace Penguin.Api.Json
             base.Body = destinationObject.ToString();
         }
 
-        public override bool TryGetValue(string path, out string value)
+        public override bool TryGetValue(string path, out object value)
         {
             if (!base.TryGetValue(path, out value))
             {
@@ -96,7 +96,7 @@ namespace Penguin.Api.Json
                 }
                 else
                 {
-                    value = token.ToString();
+                    value = token;
                 }
             }
 

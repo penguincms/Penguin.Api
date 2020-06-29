@@ -12,20 +12,20 @@ namespace Penguin.Api.SystemItems
             Values.Add(Key, Value);
         }
 
-        public override void SetValue(string path, string Value, string newPropName)
+        public override void SetValue(string path, object Value, string newPropName)
         {
             if (newPropName != null)
             {
                 Values.Remove(path);
-                Values.Add(newPropName, Value);
+                Values.Add(newPropName, Value?.ToString());
             }
             else
             {
-                Values[path] = Value;
+                Values[path] = Value?.ToString();
             }
         }
 
-        public override bool TryGetValue(string path, out string value)
+        public override bool TryGetValue(string path, out object value)
         {
             if (!base.TryGetValue(path, out value))
             {
