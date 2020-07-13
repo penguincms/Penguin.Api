@@ -12,27 +12,27 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
-            if(destination is null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
 
             string Path;
 
-            if (SourcePath?.Contains(".") ?? false)
+            if (this.SourcePath?.Contains(".") ?? false)
             {
-                Path = SourcePath.From(".");
+                Path = this.SourcePath.From(".");
             }
             else
             {
-                destination.TryGetValue(DestinationPath, out object oPath);
+                destination.TryGetValue(this.DestinationPath, out object oPath);
                 Path = oPath.ToString();
             }
 
             string Key;
-            if (!string.IsNullOrWhiteSpace(SourcePath))
+            if (!string.IsNullOrWhiteSpace(this.SourcePath))
             {
-                Key = SourcePath.To(".");
+                Key = this.SourcePath.To(".");
             }
             else
             {
@@ -43,18 +43,10 @@ namespace Penguin.Api.Shared
             if (responseToCheck.Key == Key)
             {
                 responseToCheck.Value.TryGetValue(Path, out object value);
-                destination.SetValue(DestinationPath, value);
+                destination.SetValue(this.DestinationPath, value);
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
-        {
-            if (source is null)
-            {
-                throw new System.ArgumentNullException(nameof(source));
-            }
-
-            return source.TryGetValue(SourcePath, out newValue);
-        }
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue) => source is null ? throw new System.ArgumentNullException(nameof(source)) : source.TryGetValue(this.SourcePath, out newValue);
     }
 }

@@ -13,10 +13,10 @@ namespace Penguin.Api.Shared
             {
                 if (!(this.Headers["Content-Type"]?.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) ?? true))
                 {
-                    parseXml = false;
+                    this.parseXml = false;
                 }
 
-                if (!parseXml || string.IsNullOrWhiteSpace(base.Body))
+                if (!this.parseXml || string.IsNullOrWhiteSpace(base.Body))
                 {
                     return base.Body;
                 }
@@ -27,16 +27,13 @@ namespace Penguin.Api.Shared
                 }
                 catch (Exception)
                 {
-                    parseXml = false;
+                    this.parseXml = false;
                     return base.Body;
                 }
             }
             set => base.Body = value;
         }
 
-        public override void SetValue(string path, object Value, string newPropName)
-        {
-            throw new NotImplementedException();
-        }
+        public override void SetValue(string path, object Value, string newPropName) => throw new NotImplementedException();
     }
 }

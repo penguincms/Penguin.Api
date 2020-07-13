@@ -1,13 +1,11 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
 using Penguin.Web.Abstractions.Interfaces;
-using System;
 
 namespace Penguin.Api.Forms
 {
     public class FormPostItem : BasePostItem<FormPostPayload, GenericResponsePayload>
     {
-
         public override void FillBody(string source)
         {
             this.Request = this.Request ?? new FormPostPayload();
@@ -38,17 +36,16 @@ namespace Penguin.Api.Forms
 
         public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<FormPostPayload, GenericResponsePayload> item)
         {
-            if(TryCreate(request, response, "application/x-www-form-urlencoded", out item))
+            if (this.TryCreate(request, response, "application/x-www-form-urlencoded", out item))
             {
                 item.Request.Body = new FormItemCollection(request.BodyText);
 
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
-
-
         }
     }
 }

@@ -5,47 +5,40 @@ namespace Penguin.Api
 {
     public class WebClientWrapper : IWebClient
     {
-        public WebHeaderCollection Headers => Client.Headers;
-        public WebHeaderCollection ResponseHeaders => Client.ResponseHeaders;
+        public WebHeaderCollection Headers => this.Client.Headers;
+        public WebHeaderCollection ResponseHeaders => this.Client.ResponseHeaders;
         private WebClient Client { get; set; }
 
-        public WebClientWrapper(WebClient client)
-        {
-            Client = client;
-        }
+        public WebClientWrapper(WebClient client) => this.Client = client;
 
-        public string DownloadString(string url) => Client.DownloadString(url);
+        public string DownloadString(string url) => this.Client.DownloadString(url);
 
-        public string UploadString(string url, string data) => Client.UploadString(url, data);
+        public string UploadString(string url, string data) => this.Client.UploadString(url, data);
 
-        public string UploadString(string url, string method, string data) => Client.UploadString(url, method, data);
+        public string UploadString(string url, string method, string data) => this.Client.UploadString(url, method, data);
 
         #region IDisposable Support
 
         private bool disposedValue = false; // To detect redundant calls
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
+        public void Dispose() =>
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
-        }
+            this.Dispose(true);// TODO: uncomment the following line if the finalizer is overridden above.// GC.SuppressFinalize(this);
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!this.disposedValue)
             {
                 if (disposing)
                 {
-                    Client.Dispose();
+                    this.Client.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
 
-                disposedValue = true;
+                this.disposedValue = true;
             }
         }
 

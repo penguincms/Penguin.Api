@@ -10,7 +10,7 @@ namespace Penguin.Api.Playlist
 {
     public class ApiServerInteractionCollection : IApiServerInteractionCollection
     {
-        private Dictionary<string, IApiServerInteraction> Interactions = new Dictionary<string, IApiServerInteraction>();
+        private readonly Dictionary<string, IApiServerInteraction> Interactions = new Dictionary<string, IApiServerInteraction>();
 
         public IPropertyDictionary<string, IApiPayload> Requests { get; protected set; }
 
@@ -18,15 +18,15 @@ namespace Penguin.Api.Playlist
 
         public ApiServerInteractionCollection()
         {
-            this.Requests = new PropertyDictionary<string, IApiServerInteraction, IApiPayload>(Interactions, (i) => i.Request);
-            this.Responses = new PropertyDictionary<string, IApiServerInteraction, IApiServerResponse>(Interactions, (i) => i.Response);
+            this.Requests = new PropertyDictionary<string, IApiServerInteraction, IApiPayload>(this.Interactions, (i) => i.Request);
+            this.Responses = new PropertyDictionary<string, IApiServerInteraction, IApiServerResponse>(this.Interactions, (i) => i.Response);
         }
 
-        public IApiServerInteraction this[string id] { get => Interactions[id]; }
+        public IApiServerInteraction this[string id] => this.Interactions[id];
 
         public void Add(string id, IApiServerResponse response)
         {
-            ApiServerInteraction interaction = FindOrCreate(id);
+            ApiServerInteraction interaction = this.FindOrCreate(id);
 
             if (interaction.Response != null)
             {
@@ -38,7 +38,7 @@ namespace Penguin.Api.Playlist
 
         public void Add(string id, IApiPayload request)
         {
-            ApiServerInteraction interaction = FindOrCreate(id);
+            ApiServerInteraction interaction = this.FindOrCreate(id);
 
             if (interaction.Request != null)
             {
@@ -50,13 +50,13 @@ namespace Penguin.Api.Playlist
 
         public void Add(string id, IApiServerInteraction interaction)
         {
-            if (Interactions.ContainsKey(id))
+            if (this.Interactions.ContainsKey(id))
             {
                 throw new ArgumentException($"Api Interaction with id {id} already exists");
             }
             else
             {
-                Interactions.Add(id, interaction);
+                this.Interactions.Add(id, interaction);
             }
         }
 
@@ -72,7 +72,7 @@ namespace Penguin.Api.Playlist
 
         public IEnumerator<IApiServerInteraction> GetEnumerator()
         {
-            foreach (KeyValuePair<string, IApiServerInteraction> kvp in Interactions)
+            foreach (KeyValuePair<string, IApiServerInteraction> kvp in this.Interactions)
             {
                 yield return kvp.Value;
             }
@@ -80,17 +80,17 @@ namespace Penguin.Api.Playlist
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-        public (string Id, IApiPayload Request) Request(string id) => (id, Interactions.Single(k => k.Key == id).Value.Request);
+        public (string Id, IApiPayload Request) Request(string id) => (id, this.Interactions.Single(k => k.Key == id).Value.Request);
 
-        public (string Id, IApiServerResponse Response) Response(string id) => (id, Interactions.Single(k => k.Key == id).Value.Response);
+        public (string Id, IApiServerResponse Response) Response(string id) => (id, this.Interactions.Single(k => k.Key == id).Value.Response);
 
         private ApiServerInteraction FindOrCreate(string id)
         {
-            if (!Interactions.TryGetValue(id, out IApiServerInteraction apiServerInteraction))
+            if (!this.Interactions.TryGetValue(id, out IApiServerInteraction apiServerInteraction))
             {
                 apiServerInteraction = new ApiServerInteraction();
 
-                Interactions.Add(id, apiServerInteraction);
+                this.Interactions.Add(id, apiServerInteraction);
             }
 
             return (ApiServerInteraction)apiServerInteraction;

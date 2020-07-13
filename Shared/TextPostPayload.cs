@@ -11,9 +11,6 @@ namespace Penguin.Api.Shared
             this.Headers.Add("Content-Type", "text/plain;charset=UTF-8");
         }
 
-        public override void SetValue(string path, object Value, string newPropName)
-        {
-            throw new NotImplementedException();
-        }
+        public override void SetValue(string path, object Value, string newPropName) => throw new NotImplementedException();
     }
 }

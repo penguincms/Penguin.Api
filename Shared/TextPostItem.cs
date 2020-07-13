@@ -1,5 +1,4 @@
-﻿using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Api.PostBody;
+﻿using Penguin.Api.PostBody;
 using Penguin.Web.Abstractions.Interfaces;
 
 namespace Penguin.Api.Shared
@@ -13,9 +12,6 @@ namespace Penguin.Api.Shared
             this.Request.Body.Convert(source);
         }
 
-        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<TextPostPayload, GenericResponsePayload> item)
-        {
-            return TryCreate(request, response, "text/plain", out item);
-        }
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<TextPostPayload, GenericResponsePayload> item) => this.TryCreate(request, response, "text/plain", out item);
     }
 }

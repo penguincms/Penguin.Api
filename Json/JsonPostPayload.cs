@@ -23,10 +23,7 @@ namespace Penguin.Api.Json
 
             if (path == "$")
             {
-
-
                 JToken newToken = (Value as JToken) ?? JToken.Parse(Value.ToString());
-
 
                 JsonString oldString = new JsonString(this.Body);
 
@@ -34,14 +31,12 @@ namespace Penguin.Api.Json
                     JToken.Parse(oldString) is JObject oldObject &&
                                    newToken is JObject newObject)
                 {
-
                     foreach (JProperty prop in oldObject.Properties())
                     {
                         newObject.Remove(prop.Name);
 
                         newObject.Add(prop.Name, prop.Value);
                     }
-
                 }
 
                 base.Body = newToken.ToString();

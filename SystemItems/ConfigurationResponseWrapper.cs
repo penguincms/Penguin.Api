@@ -7,21 +7,18 @@ namespace Penguin.Api.SystemItems
     {
         public Dictionary<string, string> Values { get; set; } = new Dictionary<string, string>();
 
-        public void Add(string Key, string Value)
-        {
-            Values.Add(Key, Value);
-        }
+        public void Add(string Key, string Value) => this.Values.Add(Key, Value);
 
         public override void SetValue(string path, object Value, string newPropName)
         {
             if (newPropName != null)
             {
-                Values.Remove(path);
-                Values.Add(newPropName, Value?.ToString());
+                this.Values.Remove(path);
+                this.Values.Add(newPropName, Value?.ToString());
             }
             else
             {
-                Values[path] = Value?.ToString();
+                this.Values[path] = Value?.ToString();
             }
         }
 
@@ -29,7 +26,7 @@ namespace Penguin.Api.SystemItems
         {
             if (!base.TryGetValue(path, out value))
             {
-                value = Values[path];
+                value = this.Values[path];
             }
             return true;
         }

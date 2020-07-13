@@ -6,11 +6,8 @@ namespace Penguin.Api.Binary
     {
         public byte[] Value { get; set; }
 
-        public string Convert() => System.Convert.ToBase64String(Value);
+        public string Convert() => System.Convert.ToBase64String(this.Value);
 
-        public void Convert(string fromT)
-        {
-            Value = System.Convert.FromBase64String(fromT);
-        }
+        public void Convert(string fromT) => this.Value = System.Convert.FromBase64String(fromT);
     }
 }

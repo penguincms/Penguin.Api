@@ -9,9 +9,6 @@ namespace Penguin.Api.Binary
         {
         }
 
-        public override void SetValue(string path, object Value, string newPropName)
-        {
-            throw new NotImplementedException();
-        }
+        public override void SetValue(string path, object Value, string newPropName) => throw new NotImplementedException();
     }
 }

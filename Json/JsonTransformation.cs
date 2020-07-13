@@ -12,11 +12,6 @@ namespace Penguin.Api.Json
         public string SourceId { get; set; }
         public string SourcePath { get; set; }
 
-        public static (string Id, string Path) SplitPath(string value)
-        {
-            return (value.To("."), value.From("."));
-        }
-
         public static object GetReplacement(string toReplace, IApiPlaylistSessionContainer Container)
         {
             if (toReplace is null)
@@ -41,16 +36,11 @@ namespace Penguin.Api.Json
             {
                 (string sourceId, string sourcePath) = SplitPath(toReplace);
 
-                if (TryGetTransformedValue(Container.Interactions.Responses[sourceId], sourcePath, out object newValue))
-                {
-                    return newValue;
-                }
-                else
-                {
-                    return null;
-                }
+                return TryGetTransformedValue(Container.Interactions.Responses[sourceId], sourcePath, out object newValue) ? newValue : null;
             }
         }
+
+        public static (string Id, string Path) SplitPath(string value) => (value.To("."), value.From("."));
 
         public static bool TryGetTransformedValue(IApiServerResponse payload, string sourcePath, out object newValue)
         {
@@ -70,20 +60,20 @@ namespace Penguin.Api.Json
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
-            if(destination is null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == SourceId)
+            if (responseToCheck.Key == this.SourceId)
             {
-                if (responseToCheck.Value.TryGetValue(SourcePath, out object value))
+                if (responseToCheck.Value.TryGetValue(this.SourcePath, out object value))
                 {
-                    destination.SetValue(DestinationPath, value);
+                    destination.SetValue(this.DestinationPath, value);
                 }
             }
         }
 
-        bool ITransformation.TryGetTransformedValue(IApiServerResponse payload, out object newValue) => TryGetTransformedValue(payload, SourcePath, out newValue);
+        bool ITransformation.TryGetTransformedValue(IApiServerResponse payload, out object newValue) => TryGetTransformedValue(payload, this.SourcePath, out newValue);
     }
 }

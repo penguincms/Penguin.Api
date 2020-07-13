@@ -14,16 +14,16 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
-            if(destination is null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == SourceId)
+            if (responseToCheck.Key == this.SourceId)
             {
-                if (TryGetTransformedValue(responseToCheck.Value, out object newValue))
+                if (this.TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
-                    destination.SetValue(DestinationPath, newValue);
+                    destination.SetValue(this.DestinationPath, newValue);
                 }
             }
         }
@@ -37,8 +37,8 @@ namespace Penguin.Api.Shared
 
             HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
             htmlDocument.LoadHtml(source.Body);
-            HtmlNode signupFormIdElement = htmlDocument.DocumentNode.SelectSingleNode(SourcePath);
-            newValue = signupFormIdElement.GetAttributeValue(SourceAttribute, "");
+            HtmlNode signupFormIdElement = htmlDocument.DocumentNode.SelectSingleNode(this.SourcePath);
+            newValue = signupFormIdElement.GetAttributeValue(this.SourceAttribute, "");
             return true;
         }
     }

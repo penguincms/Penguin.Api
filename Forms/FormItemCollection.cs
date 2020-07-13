@@ -10,10 +10,7 @@ namespace Penguin.Api.Forms
     {
         public string BadString { get; set; }
 
-        public FormItemCollection(string postString)
-        {
-            this.FromString(postString);
-        }
+        public FormItemCollection(string postString) => this.FromString(postString);
 
         public FormItemCollection()
         {
@@ -22,13 +19,10 @@ namespace Penguin.Api.Forms
         public string this[string key]
         {
             get => this.BackingList.Single(h => h.Name == key).Value;
-            set => FindOrCreate(key).Value = value;
+            set => this.FindOrCreate(key).Value = value;
         }
 
-        public static FormItemCollection Parse(string toParse)
-        {
-            return new FormItemCollection(toParse);
-        }
+        public static FormItemCollection Parse(string toParse) => new FormItemCollection(toParse);
 
         public void Add(string name, string value)
         {
@@ -39,14 +33,11 @@ namespace Penguin.Api.Forms
             });
         }
 
-        public bool ContainsKey(string key)
-        {
-            return this.Any(fi => fi.Name == key);
-        }
+        public bool ContainsKey(string key) => this.Any(fi => fi.Name == key);
 
         string IConvertible<string>.Convert() => this.ToString();
 
-        void IConvertible<string>.Convert(string fromT) => FromString(fromT);
+        void IConvertible<string>.Convert(string fromT) => this.FromString(fromT);
 
         public void FromString(string collection)
         {
@@ -55,13 +46,13 @@ namespace Penguin.Api.Forms
                 throw new ArgumentNullException(nameof(collection));
             }
 
-            BackingList.Clear();
+            this.BackingList.Clear();
 
             collection = collection.TrimEnd('&');
 
             if (collection.Count(c => c == '&') != collection.Count(c => c == '=') - 1)
             {
-                BadString = collection;
+                this.BadString = collection;
                 return;
             }
 
@@ -75,7 +66,7 @@ namespace Penguin.Api.Forms
                 string Key = vals.Split('=')[0];
                 string Value = vals.Split('=')[1];
 
-                BackingList.Add(new FormItem()
+                this.BackingList.Add(new FormItem()
                 {
                     Name = Uri.UnescapeDataString(Key),
                     Value = Uri.UnescapeDataString(Value)
@@ -85,15 +76,15 @@ namespace Penguin.Api.Forms
 
         public override string ToString()
         {
-            if (!string.IsNullOrWhiteSpace(BadString) || !BackingList.Any())
+            if (!string.IsNullOrWhiteSpace(this.BadString) || !this.BackingList.Any())
             {
-                return BadString;
+                return this.BadString;
             }
 
             StringBuilder sb = new StringBuilder();
 
             bool first = true;
-            foreach (FormItem thisValue in BackingList)
+            foreach (FormItem thisValue in this.BackingList)
             {
                 if (!first)
                 {
@@ -121,7 +112,7 @@ namespace Penguin.Api.Forms
                     Name = key
                 };
 
-                BackingList.Add(val);
+                this.BackingList.Add(val);
             }
 
             return val;

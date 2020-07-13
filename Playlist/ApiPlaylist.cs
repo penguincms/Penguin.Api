@@ -11,15 +11,15 @@ namespace Penguin.Api.Playlist
 {
     public class ApiPlaylist : IList<IPlaylistItem>
     {
-        public Action<IApiServerInteraction> OnResponse { get; set; } = null;
         public int Count => ((IList<IPlaylistItem>)this.Items).Count;
         public bool IsReadOnly => ((IList<IPlaylistItem>)this.Items).IsReadOnly;
+        public Action<IApiServerInteraction> OnResponse { get; set; } = null;
         protected List<IPlaylistItem> Items { get; set; } = new List<IPlaylistItem>();
         public IPlaylistItem this[int index] { get => ((IList<IPlaylistItem>)this.Items)[index]; set => ((IList<IPlaylistItem>)this.Items)[index] = value; }
 
         public void Add(IPlaylistItem item)
         {
-            if (Items.Any(i => i.Id == item.Id))
+            if (this.Items.Any(i => i.Id == item.Id))
             {
                 throw new ArgumentException("Can not add item with duplicate Id");
             }
@@ -27,32 +27,26 @@ namespace Penguin.Api.Playlist
             ((IList<IPlaylistItem>)this.Items).Add(item);
         }
 
-        public void Clear()
-        {
-            ((IList<IPlaylistItem>)this.Items).Clear();
-        }
+        public void Clear() => ((IList<IPlaylistItem>)this.Items).Clear();
 
-        public bool Contains(IPlaylistItem item)
-        {
-            return ((IList<IPlaylistItem>)this.Items).Contains(item);
-        }
+        public bool Contains(IPlaylistItem item) => ((IList<IPlaylistItem>)this.Items).Contains(item);
 
-        public bool Contains(string id)
-        {
-            return Items.Any(i => i.Id == id);
-        }
+        public bool Contains(string id) => this.Items.Any(i => i.Id == id);
 
-        public void CopyTo(IPlaylistItem[] array, int arrayIndex)
-        {
-            ((IList<IPlaylistItem>)this.Items).CopyTo(array, arrayIndex);
-        }
+        public void CopyTo(IPlaylistItem[] array, int arrayIndex) => ((IList<IPlaylistItem>)this.Items).CopyTo(array, arrayIndex);
 
-        public ApiPlaylistSessionContainer Execute(PlaylistSettings playlistSettings, ApiPlaylistSessionContainer Container = null)
+        public ApiPlaylistSessionContainer Execute(PlaylistSettings playlistSettings, PlaylistExecutionSettings executionSettings) => this.Execute(playlistSettings, null, executionSettings);
+
+        public ApiPlaylistSessionContainer Execute(PlaylistSettings playlistSettings, bool firstRun) => this.Execute(playlistSettings, null, new PlaylistExecutionSettings(firstRun));
+
+        public ApiPlaylistSessionContainer Execute(PlaylistSettings playlistSettings, ApiPlaylistSessionContainer Container = null, PlaylistExecutionSettings executionSettings = null)
         {
             if (playlistSettings is null)
             {
                 throw new ArgumentNullException(nameof(playlistSettings));
             }
+
+            executionSettings = executionSettings ?? new PlaylistExecutionSettings();
 
             Container = Container ?? new ApiPlaylistSessionContainer()
             {
@@ -61,19 +55,30 @@ namespace Penguin.Api.Playlist
 
             ConfigurationResponseWrapper configurationResponseWrapper = new ConfigurationResponseWrapper();
 
-            Container.JavascriptEngine.Execute(playlistSettings.CustomJavascript);
-
-            foreach (PlaylistConfiguration configuration in playlistSettings.Configurations)
+            if (executionSettings.ExecuteCustomJavascript)
             {
-                configurationResponseWrapper.Add(configuration.Key, configuration.Value);
+                Container.JavascriptEngine.Execute(playlistSettings.CustomJavascript);
             }
 
-            Container.Interactions.Add("$", configurationResponseWrapper);
-
-            foreach (HttpHeader header in playlistSettings.Headers)
+            if (executionSettings.CopyConfigurations)
             {
-                Container.Client.Headers.Add(header.Key, header.Value);
+                foreach (PlaylistConfiguration configuration in playlistSettings.Configurations)
+                {
+                    configurationResponseWrapper.Add(configuration.Key, configuration.Value);
+                }
+
+                Container.Interactions.Add("$", configurationResponseWrapper);
             }
+
+            if (executionSettings.CopyHeaders)
+            {
+                foreach (HttpHeader header in playlistSettings.Headers)
+                {
+                    Container.Client.Headers.Add(header.Key, header.Value);
+                }
+            }
+
+            bool Continue = executionSettings.StartId != null;
 
             foreach (IPlaylistItem item in this)
             {
@@ -82,8 +87,19 @@ namespace Penguin.Api.Playlist
                     continue;
                 }
 
+                if (Continue)
+                {
+                    if (item.Id == executionSettings.StartId)
+                    {
+                        Continue = false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
 
-                if((item.Conditions?.Any() ?? false) && !item.Conditions.All(c => c.ShouldExecute(Container)))
+                if ((item.Conditions?.Any() ?? false) && !item.Conditions.All(c => c.ShouldExecute(Container)))
                 {
                     continue;
                 }
@@ -94,7 +110,7 @@ namespace Penguin.Api.Playlist
                 {
                     IApiServerInteraction Value = hpi.Execute(Container);
 
-                    OnResponse?.Invoke(Value);
+                    this.OnResponse?.Invoke(Value);
 
                     Container.Interactions.Add(Value);
 
@@ -108,7 +124,7 @@ namespace Penguin.Api.Playlist
                     item.Execute(Container);
                 }
 
-                if (!string.IsNullOrWhiteSpace(playlistSettings.StopAfterId) && Key == playlistSettings.StopAfterId)
+                if (!string.IsNullOrWhiteSpace(executionSettings.StopId) && Key == executionSettings.StopId)
                 {
                     break;
                 }
@@ -117,68 +133,27 @@ namespace Penguin.Api.Playlist
             return Container;
         }
 
-        public IPlaylistItem Find(string id)
-        {
-            return this.Items.FirstOrDefault(i => i.Id == id);
-        }
+        public IPlaylistItem Find(string id) => this.Items.FirstOrDefault(i => i.Id == id);
 
-        public IEnumerator<IPlaylistItem> GetEnumerator()
-        {
-            return ((IList<IPlaylistItem>)this.Items).GetEnumerator();
-        }
+        public IEnumerator<IPlaylistItem> GetEnumerator() => ((IList<IPlaylistItem>)this.Items).GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IList<IPlaylistItem>)this.Items).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ((IList<IPlaylistItem>)this.Items).GetEnumerator();
 
-        public int IndexOf(IPlaylistItem item)
-        {
-            return ((IList<IPlaylistItem>)this.Items).IndexOf(item);
-        }
+        public int IndexOf(IPlaylistItem item) => ((IList<IPlaylistItem>)this.Items).IndexOf(item);
 
-        public int IndexOf(string id)
-        {
-            if (TryFind(id, out IPlaylistItem result))
-            {
-                return ((IList<IPlaylistItem>)this.Items).IndexOf(result);
-            }
-            else
-            {
-                return -1;
-            }
-        }
+        public int IndexOf(string id) => this.TryFind(id, out IPlaylistItem result) ? ((IList<IPlaylistItem>)this.Items).IndexOf(result) : -1;
 
-        public void Insert(int index, IPlaylistItem item)
-        {
-            ((IList<IPlaylistItem>)this.Items).Insert(index, item);
-        }
+        public void Insert(int index, IPlaylistItem item) => ((IList<IPlaylistItem>)this.Items).Insert(index, item);
 
-        public bool Remove(string id)
-        {
-            if (TryFind(id, out IPlaylistItem result))
-            {
-                return this.Remove(result);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public bool Remove(string id) => this.TryFind(id, out IPlaylistItem result) && this.Remove(result);
 
-        public bool Remove(IPlaylistItem item)
-        {
-            return ((IList<IPlaylistItem>)this.Items).Remove(item);
-        }
+        public bool Remove(IPlaylistItem item) => ((IList<IPlaylistItem>)this.Items).Remove(item);
 
-        public void RemoveAt(int index)
-        {
-            ((IList<IPlaylistItem>)this.Items).RemoveAt(index);
-        }
+        public void RemoveAt(int index) => ((IList<IPlaylistItem>)this.Items).RemoveAt(index);
 
         public void Reset()
         {
-            foreach (IPlaylistItem item in Items)
+            foreach (IPlaylistItem item in this.Items)
             {
                 item.Reset();
             }
@@ -186,7 +161,7 @@ namespace Penguin.Api.Playlist
 
         public bool TryFind(string id, out IPlaylistItem result)
         {
-            result = Find(id);
+            result = this.Find(id);
 
             return !(result is null);
         }

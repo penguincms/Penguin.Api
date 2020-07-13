@@ -6,10 +6,7 @@ namespace Penguin.Api.PostBody
     {
         public string Value { get; set; }
 
-        public TextPostBody(string value)
-        {
-            Value = value;
-        }
+        public TextPostBody(string value) => this.Value = value;
 
         public TextPostBody()
         {
@@ -19,16 +16,10 @@ namespace Penguin.Api.PostBody
 
         public static implicit operator TextPostBody(string b) => new TextPostBody(b);
 
-        public string Convert() => Value;
+        public string Convert() => this.Value;
 
-        public void Convert(string fromT)
-        {
-            Value = fromT;
-        }
+        public void Convert(string fromT) => this.Value = fromT;
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public override string ToString() => this.Value;
     }
 }

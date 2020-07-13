@@ -11,9 +11,6 @@ namespace Penguin.Api.Xml
             this.Request.Body = source;
         }
 
-        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<XmlPostPayload, XmlResponsePayload> item)
-        {
-            return TryCreate(request, response, "text/xml", out item);
-        }
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<XmlPostPayload, XmlResponsePayload> item) => this.TryCreate(request, response, "text/xml", out item);
     }
 }

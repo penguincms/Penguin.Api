@@ -19,11 +19,12 @@ namespace Penguin.Api.Binary
                 throw new System.ArgumentNullException(nameof(request));
             }
 
-            if(request.Method == "POST" && request.ContentType.Contains("binary"))
+            if (request.Method == "POST" && request.ContentType.Contains("binary"))
             {
                 item = new BinaryPostItem();
                 return true;
-            } else
+            }
+            else
             {
                 item = null;
                 return false;

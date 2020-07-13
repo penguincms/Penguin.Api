@@ -1,17 +1,15 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Web;
 using Penguin.Web.Abstractions.Interfaces;
-using Penguin.Web.Headers;
 using System;
-using System.Collections.Generic;
 
 namespace Penguin.Api.Shared
 {
     public class UnsupportedHttpPlaylistItem : HttpPlaylistItem<EmptyPayload, GenericResponsePayload>
     {
-        string Method { get; set; }
-        string RequestContentType { get; set; }
-        string ResponseContentType { get; set; }
+        private string Method { get; set; }
+        private string RequestContentType { get; set; }
+        private string ResponseContentType { get; set; }
 
         public UnsupportedHttpPlaylistItem()
         {
@@ -42,19 +40,11 @@ namespace Penguin.Api.Shared
             this.Enabled = false;
         }
 
-        public override string ToString()
-        {
-            return $"UNSUPPORTED {Method} ({RequestContentType} => {ResponseContentType})";
-        }
-        public override IApiServerInteraction<EmptyPayload, GenericResponsePayload> Execute(IApiPlaylistSessionContainer Container)
-        {
-            throw new NotImplementedException();
-        }
+        public override IApiServerInteraction<EmptyPayload, GenericResponsePayload> Execute(IApiPlaylistSessionContainer Container) => throw new NotImplementedException();
 
-        public override string GetBody(IApiPlaylistSessionContainer Container, EmptyPayload request)
-        {
-            throw new NotImplementedException();
-        }
+        public override string GetBody(IApiPlaylistSessionContainer Container, EmptyPayload request) => throw new NotImplementedException();
+
+        public override string ToString() => $"UNSUPPORTED {this.Method} ({this.RequestContentType} => {this.ResponseContentType})";
 
         public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<EmptyPayload, GenericResponsePayload> item)
         {

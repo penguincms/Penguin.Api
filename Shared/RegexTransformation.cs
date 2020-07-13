@@ -8,12 +8,12 @@ namespace Penguin.Api.Shared
     public class RegexTransformation : ITransformation
     {
         public string DestinationPath { get; set; }
+        public int Group { get; set; }
+        public int MatchIndex { get; set; }
         public string RegexExpression { get; set; }
         public string SourceId { get; set; }
         string ITransformation.SourcePath { get; set; }
         public string Value { get; set; }
-        public int Group { get; set; }
-        public int MatchIndex { get; set; }
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
@@ -22,11 +22,11 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == SourceId)
+            if (responseToCheck.Key == this.SourceId)
             {
                 if (this.TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
-                    destination.SetValue(DestinationPath, newValue);
+                    destination.SetValue(this.DestinationPath, newValue);
                 }
             }
         }
@@ -40,25 +40,25 @@ namespace Penguin.Api.Shared
                 throw new System.ArgumentNullException(nameof(source));
             }
 
-            if (Regex.IsMatch(source.Body, RegexExpression))
+            if (Regex.IsMatch(source.Body, this.RegexExpression))
             {
                 int mIndex = 0;
-                foreach (Match m in Regex.Matches(source.Body, RegexExpression))
+                foreach (Match m in Regex.Matches(source.Body, this.RegexExpression))
                 {
-                    if (MatchIndex == mIndex)
+                    if (this.MatchIndex == mIndex)
                     {
                         int gIndex = 0;
 
                         foreach (Group g in m.Groups)
                         {
-                            if (gIndex == Group)
+                            if (gIndex == this.Group)
                             {
                                 newValue = g.Value;
                                 return true;
                             }
                             gIndex++;
 
-                            if(gIndex > Group)
+                            if (gIndex > this.Group)
                             {
                                 return false;
                             }
@@ -67,7 +67,7 @@ namespace Penguin.Api.Shared
 
                     mIndex++;
 
-                    if(mIndex > MatchIndex)
+                    if (mIndex > this.MatchIndex)
                     {
                         return false;
                     }
@@ -75,7 +75,6 @@ namespace Penguin.Api.Shared
             }
 
             return false;
-
         }
     }
 }

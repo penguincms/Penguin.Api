@@ -15,16 +15,16 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
-            if(destination is null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == SourceId)
+            if (responseToCheck.Key == this.SourceId)
             {
                 if (this.TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
-                    destination.SetValue(DestinationPath, newValue);
+                    destination.SetValue(this.DestinationPath, newValue);
                 }
             }
         }
@@ -36,9 +36,9 @@ namespace Penguin.Api.Shared
                 throw new System.ArgumentNullException(nameof(source));
             }
 
-            if (Regex.IsMatch(source.Body, RegexExpression))
+            if (Regex.IsMatch(source.Body, this.RegexExpression))
             {
-                newValue = Value;
+                newValue = this.Value;
                 return true;
             }
             else

@@ -1,8 +1,6 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Api.Playlist;
 using Penguin.Web.Abstractions.Interfaces;
 using System;
-using System.Collections.Generic;
 
 namespace Penguin.Api.Shared
 {
@@ -12,22 +10,14 @@ namespace Penguin.Api.Shared
         {
             this.ApplyHeaders(Container);
 
-            return BuildResponse(Container);
+            return this.BuildResponse(Container);
         }
 
         public override string GetBody(IApiPlaylistSessionContainer Container, TRequest request)
         {
-            if (Container is null)
-            {
-                throw new System.ArgumentNullException(nameof(Container));
-            }
-
-            if (request is null)
-            {
-                throw new System.ArgumentNullException(nameof(request));
-            }
-
-            return Container.Client.DownloadString(request.Url);
+            return Container is null
+                ? throw new System.ArgumentNullException(nameof(Container))
+                : request is null ? throw new System.ArgumentNullException(nameof(request)) : Container.Client.DownloadString(request.Url);
         }
 
         public bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, Func<string, bool> contentTypeCheck, out HttpPlaylistItem<TRequest, TResponse> item)
@@ -55,14 +45,13 @@ namespace Penguin.Api.Shared
                 {
                     checkContentType = response.ContentType;
                 }
-
             }
 
             if (request.Method == "GET" && contentTypeCheck(checkContentType))
             {
                 HttpPlaylistItem<TRequest, TResponse> bi = Activator.CreateInstance(this.GetType()) as HttpPlaylistItem<TRequest, TResponse>;
 
-                item = bi as HttpPlaylistItem<TRequest, TResponse>;
+                item = bi;
 
                 base.SetupHttpPlaylistItem(item, request, response);
 
@@ -74,10 +63,7 @@ namespace Penguin.Api.Shared
                 return false;
             }
         }
-        public bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, string targetContentType, out HttpPlaylistItem<TRequest, TResponse> item)
-        {
-            return TryCreate(request, response, (ContentType) => ContentType.StartsWith(targetContentType, StringComparison.OrdinalIgnoreCase), out item);
-        }
 
+        public bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, string targetContentType, out HttpPlaylistItem<TRequest, TResponse> item) => this.TryCreate(request, response, (ContentType) => ContentType.StartsWith(targetContentType, StringComparison.OrdinalIgnoreCase), out item);
     }
 }

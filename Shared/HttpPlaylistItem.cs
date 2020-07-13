@@ -12,73 +12,36 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace Penguin.Api.Shared
 {
     public abstract class HttpPlaylistItem<TRequest, TResponse> : BasePlaylistItem, IHttpPlaylistItem<TRequest, TResponse> where TResponse : ApiServerResponse, new() where TRequest : ApiPayload, new()
     {
-        protected void SetupHttpPlaylistItem(HttpPlaylistItem<TRequest, TResponse> item, IHttpServerRequest request, IHttpServerResponse response)
-        {
-            if (item is null)
-            {
-                throw new ArgumentNullException(nameof(item));
-            }
-
-            if (request is null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
-
-            if (response is null)
-            {
-                throw new ArgumentNullException(nameof(response));
-            }
-
-            item.Enabled = true;
-
-            foreach (KeyValuePair<string, string> header in request.Headers)
-            {
-                item.Request.Headers.Add(header.Key, header.Value);
-            }
-
-            item.Url = request.Url;
-
-            if (response != null)
-            {
-                foreach (KeyValuePair<string, string> header in response.Headers)
-                {
-                    item.Response.Headers.Add(header.Key, header.Value);
-                }
-
-                item.Response.Body = response.BodyText;
-            }
-
-
-        }
-        [Display(Order = -100)]
-        public TRequest Request { get; set; } = new TRequest();
-        IApiPayload IHttpPlaylistItem.Request => Request;
-
-        [Display(Order = 1000)]
-        public TResponse Response { get; protected set; } = new TResponse();
-        IApiServerResponse IHttpPlaylistItem.Response => Response;
+        private string url;
 
         [Display(Order = -500)]
         public FormItemCollection QueryParameters { get; set; } = new FormItemCollection();
 
-        private string url;
+        [Display(Order = -100)]
+        public TRequest Request { get; set; } = new TRequest();
+
+        IApiPayload IHttpPlaylistItem.Request => this.Request;
+
+        [Display(Order = 1000)]
+        public TResponse Response { get; protected set; } = new TResponse();
+
+        IApiServerResponse IHttpPlaylistItem.Response => this.Response;
 
         [Display(Order = -1000)]
         public string Url
         {
             get
             {
-                string v = url;
+                string v = this.url;
 
                 if (this.QueryParameters.Where(k => !string.IsNullOrWhiteSpace(k.Name)).Any())
                 {
-                    v += $"?{QueryParameters}";
+                    v += $"?{this.QueryParameters}";
                 }
 
                 return v;
@@ -92,14 +55,14 @@ namespace Penguin.Api.Shared
                     int inBraces = 0;
                     int qStart = -1;
 
-                    for(int i = 0; i < v.Length; i++)
+                    for (int i = 0; i < v.Length; i++)
                     {
-                        if(v[i] == '{')
+                        if (v[i] == '{')
                         {
                             inBraces++;
                         }
 
-                        if(inBraces == 0 && v[i] == '?')
+                        if (inBraces == 0 && v[i] == '?')
                         {
                             qStart = i;
                         }
@@ -119,7 +82,7 @@ namespace Penguin.Api.Shared
                     }
                 }
 
-                url = v;
+                this.url = v;
             }
         }
 
@@ -130,7 +93,7 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            foreach (HttpHeader ph in Request.Headers)
+            foreach (HttpHeader ph in this.Request.Headers)
             {
                 List<string> keys = new List<string>();
 
@@ -174,28 +137,28 @@ namespace Penguin.Api.Shared
                     {
                         foreach (string key in headers.Keys)
                         {
-                            Response.Headers[key] = headers[key];
+                            this.Response.Headers[key] = headers[key];
                         }
                     }
                 }
 
                 try
                 {
-                    Response.Body = GetBody(Container, clonedRequest);
-                    Response.Status = ApiServerResponseStatus.Success;
+                    this.Response.Body = this.GetBody(Container, clonedRequest);
+                    this.Response.Status = ApiServerResponseStatus.Success;
 
                     FillHeaders(Container.Client.ResponseHeaders);
                 }
                 catch (Exception ex)
                 {
-                    Response.Exception = ex;
+                    this.Response.Exception = ex;
 
                     if (ex is WebException wex)
                     {
                         HttpWebResponse errorResponse = wex.Response as HttpWebResponse;
                         if (errorResponse.StatusCode != HttpStatusCode.NotFound)
                         {
-                            Response.Status = ApiServerResponseStatus.Error;
+                            this.Response.Status = ApiServerResponseStatus.Error;
 
                             using (StreamReader sr = new StreamReader(wex.Response.GetResponseStream()))
                             {
@@ -204,30 +167,32 @@ namespace Penguin.Api.Shared
                         }
                         else
                         {
-                            Response.Status = ApiServerResponseStatus.Warning;
+                            this.Response.Status = ApiServerResponseStatus.Warning;
                         }
 
                         FillHeaders(errorResponse.Headers);
                     }
                     else
                     {
-                        Response.Status = ApiServerResponseStatus.Error;
+                        this.Response.Status = ApiServerResponseStatus.Error;
                         throw;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Response.Exception = ex;
-                Response.Status = ApiServerResponseStatus.Error;
+                this.Response.Exception = ex;
+                this.Response.Status = ApiServerResponseStatus.Error;
             }
 
-            return ApiServerInteraction.Create(clonedRequest, Response, Id);
+            return ApiServerInteraction.Create(clonedRequest, this.Response, this.Id);
         }
 
         public abstract IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container);
 
-        void IPlaylistItem.Execute(IApiPlaylistSessionContainer Container) => Execute(Container);
+        void IPlaylistItem.Execute(IApiPlaylistSessionContainer Container) => this.Execute(Container);
+
+        IApiServerInteraction IPlaylistItem<IApiServerInteraction>.Execute(IApiPlaylistSessionContainer Container) => this.Execute(Container);
 
         public abstract string GetBody(IApiPlaylistSessionContainer Container, TRequest request);
 
@@ -267,14 +232,9 @@ namespace Penguin.Api.Shared
 
             foreach (Transformation thisReplacement in Replacements)
             {
-                if (TryGetReplacement(thisReplacement.Value, Container, out object newValue) && (newValue != null || !thisReplacement.Required))
-                {
-                    transformedUrl = transformedUrl.Replace($"{{{thisReplacement.Value}}}", newValue.ToString());
-                }
-                else
-                {
-                    throw new Exception($"Required transformation {newValue} not found");
-                }
+                transformedUrl = this.TryGetReplacement(thisReplacement.Value, Container, out object newValue) && (newValue != null || !thisReplacement.Required)
+                    ? transformedUrl.Replace($"{{{thisReplacement.Value}}}", newValue.ToString())
+                    : throw new Exception($"Required transformation {newValue} not found");
             }
 
             if (this.QueryParameters.Any())
@@ -292,7 +252,7 @@ namespace Penguin.Api.Shared
                     {
                         queryParameter.Name = queryParameter.Name.Substring(1);
 
-                        if (TryGetReplacement(queryParameter.Value, Container, out object newValue))
+                        if (this.TryGetReplacement(queryParameter.Value, Container, out object newValue))
                         {
                             queryParameter.Value = newValue?.ToString();
                         }
@@ -308,13 +268,10 @@ namespace Penguin.Api.Shared
         public override void Reset()
         {
             this.Response = new TResponse();
-            Executed = false;
+            this.Executed = false;
         }
 
-        public override string ToString()
-        {
-            return $"{Id} ({this.Url})";
-        }
+        public override string ToString() => $"{this.Id} ({this.Url})";
 
         public virtual TRequest Transform(IApiPlaylistSessionContainer Container)
         {
@@ -328,17 +285,30 @@ namespace Penguin.Api.Shared
                 {
                     header.Key = header.Key.Substring(1);
 
-                    if (TryGetReplacement(header.Value, Container, out object v))
+                    if (this.TryGetReplacement(header.Value, Container, out object v))
                     {
                         header.Value = v.ToString();
                     }
                 }
             }
 
-
-
-
             return clonedRequest;
+        }
+
+        public abstract bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<TRequest, TResponse> item);
+
+        bool IHttpPlaylistItem<TRequest, TResponse>.TryCreate(IHttpServerRequest request, IHttpServerResponse response, out IHttpPlaylistItem<TRequest, TResponse> item)
+        {
+            bool r = this.TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
+            item = i;
+            return r;
+        }
+
+        bool IHttpPlaylistItem.TryCreate(IHttpServerRequest request, IHttpServerResponse response, out IHttpPlaylistItem item)
+        {
+            bool r = this.TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
+            item = i;
+            return r;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
@@ -371,7 +341,7 @@ namespace Penguin.Api.Shared
                 value = Container.SessionObjects.Get(toReplace.Substring(1));
                 return true;
             }
-            else if(toReplace.StartsWith("regex(", StringComparison.OrdinalIgnoreCase))
+            else if (toReplace.StartsWith("regex(", StringComparison.OrdinalIgnoreCase))
             {
                 string val = toReplace.From("(").ToLast(")");
 
@@ -417,23 +387,41 @@ namespace Penguin.Api.Shared
             }
         }
 
-        public abstract bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<TRequest, TResponse> item);
-
-        bool IHttpPlaylistItem<TRequest, TResponse>.TryCreate(IHttpServerRequest request, IHttpServerResponse response, out IHttpPlaylistItem<TRequest, TResponse> item)
+        protected void SetupHttpPlaylistItem(HttpPlaylistItem<TRequest, TResponse> item, IHttpServerRequest request, IHttpServerResponse response)
         {
-            bool r = this.TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
-            item = i;
-            return r;
+            if (item is null)
+            {
+                throw new ArgumentNullException(nameof(item));
+            }
+
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (response is null)
+            {
+                throw new ArgumentNullException(nameof(response));
+            }
+
+            item.Enabled = true;
+
+            foreach (KeyValuePair<string, string> header in request.Headers)
+            {
+                item.Request.Headers.Add(header.Key, header.Value);
+            }
+
+            item.Url = request.Url;
+
+            if (response != null)
+            {
+                foreach (KeyValuePair<string, string> header in response.Headers)
+                {
+                    item.Response.Headers.Add(header.Key, header.Value);
+                }
+
+                item.Response.Body = response.BodyText;
+            }
         }
-
-        bool IHttpPlaylistItem.TryCreate(IHttpServerRequest request, IHttpServerResponse response, out IHttpPlaylistItem item)
-        {
-            bool r = this.TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
-            item = i;
-            return r;
-
-        }
-
-        IApiServerInteraction IPlaylistItem<IApiServerInteraction>.Execute(IApiPlaylistSessionContainer Container) => Execute(Container);
     }
 }

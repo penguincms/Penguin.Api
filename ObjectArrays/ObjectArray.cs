@@ -9,18 +9,18 @@ namespace Penguin.Api.ObjectArrays
 {
     public class ObjectArray : IObjectArray
     {
-        private Dictionary<string, string> backingDictionary = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> backingDictionary = new Dictionary<string, string>();
 
-        private Dictionary<string, IObjectArray> initializedArrays = new Dictionary<string, IObjectArray>();
+        private readonly Dictionary<string, IObjectArray> initializedArrays = new Dictionary<string, IObjectArray>();
 
         public string this[string index]
         {
             get
             {
-                if (!backingDictionary.TryGetValue(index, out string v))
+                if (!this.backingDictionary.TryGetValue(index, out string v))
                 {
                     v = this.GetNew(index);
-                    backingDictionary.Add(index, v);
+                    this.backingDictionary.Add(index, v);
                 }
 
                 return v;
@@ -32,26 +32,23 @@ namespace Penguin.Api.ObjectArrays
             string TypeName = toGet.To("[");
             string index = toGet.From("[").To("]");
 
-            Type arrayType = GetType(TypeName);
+            Type arrayType = this.GetType(TypeName);
 
-            if (!initializedArrays.TryGetValue(TypeName, out IObjectArray o))
+            if (!this.initializedArrays.TryGetValue(TypeName, out IObjectArray o))
             {
                 o = Activator.CreateInstance(arrayType) as IObjectArray;
 
-                initializedArrays.Add(TypeName, o);
+                this.initializedArrays.Add(TypeName, o);
             }
 
             return o[index];
         }
 
-        public virtual string GetNew(string index)
-        {
-            throw new NotImplementedException();
-        }
+        public virtual string GetNew(string index) => throw new NotImplementedException();
 
         public Type GetType(string TypeName)
         {
-            if (initializedArrays.TryGetValue(TypeName, out IObjectArray array))
+            if (this.initializedArrays.TryGetValue(TypeName, out IObjectArray array))
             {
                 return array.GetType();
             }

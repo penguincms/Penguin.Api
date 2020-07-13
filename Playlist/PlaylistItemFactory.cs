@@ -1,13 +1,7 @@
-﻿using Penguin.Api.Abstractions.Enumerations;
-using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Api.Forms;
-using Penguin.Api.Json;
+﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
-using Penguin.Api.SystemItems;
-using Penguin.Api.Xml;
 using Penguin.Reflection;
 using Penguin.Web;
-using Penguin.Web.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +16,7 @@ namespace Penguin.Api.Playlist
         {
             get
             {
-                if(playlistTemplates is null)
+                if (playlistTemplates is null)
                 {
                     playlistTemplates = TypeFactory.GetAllImplementations<IHttpPlaylistItem>().Select(t => Activator.CreateInstance(t) as IHttpPlaylistItem).ToList();
                 }
@@ -30,6 +24,7 @@ namespace Penguin.Api.Playlist
                 return playlistTemplates;
             }
         }
+
         public static IPlaylistItem GetPlaylistItem(string Name, HttpServerInteraction interaction)
         {
             if (interaction is null)
@@ -54,20 +49,20 @@ namespace Penguin.Api.Playlist
 
             IHttpPlaylistItem item = null;
 
-            foreach(IHttpPlaylistItem checkItem in PlaylistTemplates)
+            foreach (IHttpPlaylistItem checkItem in PlaylistTemplates)
             {
-                if(checkItem.TryCreate(request, response, out item))
+                if (checkItem.TryCreate(request, response, out item))
                 {
                     break;
                 }
             }
 
-            if(item is null)
+            if (item is null)
             {
                 item = new UnsupportedHttpPlaylistItem(request, response);
             }
 
-            item.Id = Name;          
+            item.Id = Name;
 
             return item;
         }

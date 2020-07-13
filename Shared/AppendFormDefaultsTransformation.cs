@@ -14,7 +14,7 @@ namespace Penguin.Api.Shared
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
-            if(destination is null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -30,11 +30,12 @@ namespace Penguin.Api.Shared
                 {
                     node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@id='{this.FormName.Substring(1)}']");
 
-                    if(node is null)
+                    if (node is null)
                     {
                         throw new NullReferenceException($"Form with id \"{this.FormName.Substring(1)}\" was not found on response \"{this.SourceId}\"");
                     }
-                } else
+                }
+                else
                 {
                     node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@name='{this.FormName}']");
 

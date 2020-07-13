@@ -6,6 +6,6 @@ namespace Penguin.Api.Shared
     {
         public virtual TBody Body { get; set; }
 
-        public override string ToString() => Body.ToString();
+        public override string ToString() => this.Body.ToString();
     }
 }

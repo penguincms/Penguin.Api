@@ -1,5 +1,7 @@
-﻿using Penguin.Web.Headers;
+﻿using Penguin.Json.Extensions;
+using Penguin.Web.Headers;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Penguin.Api.Playlist
 {
@@ -12,8 +14,34 @@ namespace Penguin.Api.Playlist
     public class PlaylistSettings
     {
         public List<PlaylistConfiguration> Configurations { get; set; } = new List<PlaylistConfiguration>();
+
         public string CustomJavascript { get; set; }
+
         public List<HttpHeader> Headers { get; set; } = new List<HttpHeader>();
-        public string StopAfterId { get; set; }
+
+        public void AddConfiguration(object o)
+        {
+            if (o is null)
+            {
+                throw new System.ArgumentNullException(nameof(o));
+            }
+
+            foreach (PropertyInfo pi in o.GetType().GetProperties())
+            {
+                if (pi.GetGetMethod() is null)
+                {
+                    continue;
+                }
+
+                string jsonName = pi.GetJsonName();
+                string value = pi.GetValue(o)?.ToString();
+
+                this.Configurations.Add(new PlaylistConfiguration()
+                {
+                    Key = jsonName,
+                    Value = value
+                });
+            }
+        }
     }
 }

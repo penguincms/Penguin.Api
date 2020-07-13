@@ -12,7 +12,7 @@ namespace Penguin.Api.Forms
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
         {
-            if(destination is null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -22,31 +22,23 @@ namespace Penguin.Api.Forms
                 throw new ArgumentNullException(nameof(responseToCheck));
             }
 
-            if (responseToCheck.Key != SourceId)
+            if (responseToCheck.Key != this.SourceId)
             {
                 return;
             }
 
-            responseToCheck.Value.TryGetValue(SourcePath, out object sourceValue);
+            responseToCheck.Value.TryGetValue(this.SourcePath, out object sourceValue);
 
-            if (!string.IsNullOrWhiteSpace(DestinationPath))
+            if (!string.IsNullOrWhiteSpace(this.DestinationPath))
             {
-                destination.SetValue(DestinationPath, sourceValue);
+                destination.SetValue(this.DestinationPath, sourceValue);
             }
             else
             {
-                destination.SetValue(SourcePath, sourceValue);
+                destination.SetValue(this.SourcePath, sourceValue);
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
-        {
-            if (source is null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            return source.TryGetValue(SourcePath, out newValue);
-        }
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue) => source is null ? throw new ArgumentNullException(nameof(source)) : source.TryGetValue(this.SourcePath, out newValue);
     }
 }
