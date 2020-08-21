@@ -5,9 +5,9 @@ namespace Penguin.Api.SystemItems
 {
     public class ConfigurationResponseWrapper : ApiServerResponse
     {
-        public Dictionary<string, string> Values { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
 
-        public void Add(string Key, string Value) => this.Values.Add(Key, Value);
+        public void Add(string Key, object Value) => this.Values.Add(Key, Value);
 
         public override void SetValue(string path, object Value, string newPropName)
         {

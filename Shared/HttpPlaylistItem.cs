@@ -198,44 +198,27 @@ namespace Penguin.Api.Shared
 
         public virtual string GetTransformedUrl(IApiPlaylistSessionContainer Container)
         {
-            bool inReplace = false;
-            string transformedUrl = this.url;
+            string inputString = this.url;
 
-            List<Transformation> Replacements = new List<Transformation>();
+            string outputString = inputString;
 
-            string replacement = string.Empty;
 
-            for (int i = 0; i < this.url.Length; i++)
+
+            while (outputString.Contains("}"))
             {
-                if (this.url[i] == '{')
-                {
-                    inReplace = true;
-                    continue;
-                }
+                int firstClose = outputString.IndexOf("}", StringComparison.OrdinalIgnoreCase);
 
-                if (this.url[i] == '}')
-                {
-                    inReplace = false;
-                    if (!string.IsNullOrWhiteSpace(replacement))
-                    {
-                        Replacements.Add(new Transformation(replacement));
-                        replacement = string.Empty;
-                    }
-                    continue;
-                }
+                string temp = outputString.Substring(0, firstClose);
 
-                if (inReplace)
-                {
-                    replacement += this.url[i];
-                }
+                int lastOpen = temp.LastIndexOf("{", StringComparison.OrdinalIgnoreCase);
+
+                temp = temp.Substring(lastOpen + 1);
+
+                outputString = this.TryGetReplacement(temp, Container, out object newValue)
+                    ? outputString.Replace($"{{{temp}}}", newValue.ToString())
+                    : throw new Exception($"Can not find replacement for '{temp}'");
             }
 
-            foreach (Transformation thisReplacement in Replacements)
-            {
-                transformedUrl = this.TryGetReplacement(thisReplacement.Value, Container, out object newValue) && (newValue != null || !thisReplacement.Required)
-                    ? transformedUrl.Replace($"{{{thisReplacement.Value}}}", newValue.ToString())
-                    : throw new Exception($"Required transformation {newValue} not found");
-            }
 
             if (this.QueryParameters.Any())
             {
@@ -259,10 +242,10 @@ namespace Penguin.Api.Shared
                     }
                 }
 
-                transformedUrl += $"?{newParams}";
+                outputString += $"?{newParams}";
             }
 
-            return transformedUrl;
+            return outputString;
         }
 
         public override void Reset()
