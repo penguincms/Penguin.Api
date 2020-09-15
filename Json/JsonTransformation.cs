@@ -12,7 +12,7 @@ namespace Penguin.Api.Json
         public string SourceId { get; set; }
         public string SourcePath { get; set; }
 
-        public static object GetReplacement(string toReplace, IApiPlaylistSessionContainer Container)
+        public static bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object newValue)
         {
             if (toReplace is null)
             {
@@ -30,13 +30,21 @@ namespace Penguin.Api.Json
 
                 toExecute = $"function toExec() {{ var v = {toExecute}; return v.toString(); }} toExec();";
 
-                return Container.JavascriptEngine.Execute(toExecute);
+                newValue = Container.JavascriptEngine.Execute(toExecute);
+                return true;
             }
             else
             {
                 (string sourceId, string sourcePath) = SplitPath(toReplace);
 
-                return TryGetTransformedValue(Container.Interactions.Responses[sourceId], sourcePath, out object newValue) ? newValue : null;
+                if(Container.Interactions.Responses.TryGetValue(sourceId, out IApiServerResponse response)) {
+                    return TryGetTransformedValue(response, sourcePath, out newValue);
+                } else
+                {
+                    newValue = null;
+                    return false;
+                }
+                
             }
         }
 

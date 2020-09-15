@@ -1,4 +1,5 @@
-﻿using Penguin.Api.Abstractions.Enumerations;
+﻿using Newtonsoft.Json;
+using Penguin.Api.Abstractions.Enumerations;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.SystemItems;
 using Penguin.Web.Headers;
@@ -6,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Penguin.Api.Playlist
 {
@@ -62,10 +64,16 @@ namespace Penguin.Api.Playlist
 
             if (executionSettings.CopyConfigurations)
             {
+                StringBuilder JsConfigScript = new StringBuilder();
+                JsConfigScript.AppendLine("var $ = $ || {};");
+
                 foreach (PlaylistConfiguration configuration in playlistSettings.Configurations)
                 {
                     configurationResponseWrapper.Add(configuration.Key, configuration.Value);
+                    JsConfigScript.AppendLine($"$.{configuration.Key} = {JsonConvert.SerializeObject(configuration.Value)};");
                 }
+
+                Container.JavascriptEngine.Execute(JsConfigScript.ToString());
 
                 Container.Interactions.Add("$", configurationResponseWrapper);
             }

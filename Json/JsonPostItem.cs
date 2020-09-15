@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Penguin.Api.Abstractions.Extensions;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
 using Penguin.Extensions.Strings;
@@ -58,8 +59,6 @@ namespace Penguin.Api.Json
 
             foreach (JProperty jprop in jprops)
             {
-                List<JToken> values = new List<JToken>();
-
                 if (jprop.Value is JArray ja)
                 {
                     this.TransformArray(Container, jprop, ja, clonedRequest);
@@ -105,7 +104,14 @@ namespace Penguin.Api.Json
 
                 if (this.TryGetReplacement(v.ToString(), Container, out object newv))
                 {
-                    v = newv is JToken jto ? jto : new JValue(newv.ToString());
+                    if (newv is null)
+                    {
+                        v = null;
+                    }
+                    else
+                    {
+                        v = newv is JToken jto ? jto : new JValue($"{newv}");
+                    }
 
                     replace = true;
                 }
@@ -136,22 +142,17 @@ namespace Penguin.Api.Json
 
             string destPropName = DestPath.FromLast(".").Substring(1);
 
-            if (this.TryGetReplacement(SourceValue, Container, out object v))
+            if (this.TryFindReplacement(SourceValue, Container, out object v))
             {
                 clonedRequest.SetValue(DestPath, v, destPropName);
             }
         }
 
-        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonPostPayload, JsonResponsePayload> item) => this.TryCreate(request, response, "application/json", out item);
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonPostPayload, JsonResponsePayload> item) 
+            => this.TryCreate(request, response, "application/json", out item);
 
-        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object v)
-        {
-            if (!base.TryGetReplacement(toReplace, Container, out v))
-            {
-                v = JsonTransformation.GetReplacement(toReplace, Container);
-            }
-            return true;
-        }
+        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object v) 
+            => base.TryGetReplacement(toReplace, Container, out v) || JsonTransformation.TryGetReplacement(toReplace, Container, out v);
 
         private static IEnumerable<JProperty> GetTransformationPoints(JToken jtoken)
         {

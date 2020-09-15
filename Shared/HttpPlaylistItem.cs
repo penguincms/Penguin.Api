@@ -1,4 +1,5 @@
 ﻿using Penguin.Api.Abstractions.Enumerations;
+using Penguin.Api.Abstractions.Extensions;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Forms;
 using Penguin.Api.Playlist;
@@ -15,7 +16,7 @@ using System.Net;
 
 namespace Penguin.Api.Shared
 {
-    public abstract class HttpPlaylistItem<TRequest, TResponse> : BasePlaylistItem, IHttpPlaylistItem<TRequest, TResponse> where TResponse : ApiServerResponse, new() where TRequest : ApiPayload, new()
+    public abstract class HttpPlaylistItem<TRequest, TResponse> : BasePlaylistItem, ITryGetReplacement, IHttpPlaylistItem<TRequest, TResponse> where TResponse : ApiServerResponse, new() where TRequest : ApiPayload, new()
     {
         private string url;
 
@@ -214,9 +215,7 @@ namespace Penguin.Api.Shared
 
                 temp = temp.Substring(lastOpen + 1);
 
-                outputString = this.TryGetReplacement(temp, Container, out object newValue)
-                    ? outputString.Replace($"{{{temp}}}", newValue.ToString())
-                    : throw new Exception($"Can not find replacement for '{temp}'");
+                outputString = outputString.Replace($"{{{temp}}}", this.FindReplacement(temp, Container));
             }
 
 
