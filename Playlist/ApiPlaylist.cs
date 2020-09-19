@@ -65,12 +65,12 @@ namespace Penguin.Api.Playlist
             if (executionSettings.CopyConfigurations)
             {
                 StringBuilder JsConfigScript = new StringBuilder();
-                JsConfigScript.AppendLine("var $ = $ || {};");
+                JsConfigScript.AppendLine("globalThis.$ = globalThis.$ || {};");
 
                 foreach (PlaylistConfiguration configuration in playlistSettings.Configurations)
                 {
                     configurationResponseWrapper.Add(configuration.Key, configuration.Value);
-                    JsConfigScript.AppendLine($"$.{configuration.Key} = {JsonConvert.SerializeObject(configuration.Value)};");
+                    JsConfigScript.AppendLine($"globalThis.$.{configuration.Key} = {JsonConvert.SerializeObject(configuration.Value)};");
                 }
 
                 Container.JavascriptEngine.Execute(JsConfigScript.ToString());

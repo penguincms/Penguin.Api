@@ -20,19 +20,19 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            Container.JavascriptEngine.Execute("var Playlist = Playlist || {};");
-            Container.JavascriptEngine.Execute($"Playlist['{this.Id}'] = {{}};");
+            Container.JavascriptEngine.Execute("globalThis.Playlist = globalThis.Playlist || {};");
+            Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'] = {{}};");
 
             if (!string.IsNullOrWhiteSpace(this.Request.Body))
             {
-                Container.JavascriptEngine.Execute($"Playlist['{this.Id}'].Request = {this.Request.Body};");
+                Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'].Request = {this.Request.Body};");
             }
 
             IApiServerInteraction<JsonPostPayload, JsonResponsePayload> Interaction = base.Execute(Container);
 
             if (new JsonString(Interaction.Response.Body).IsValid)
             {
-                Container.JavascriptEngine.Execute($"Playlist['{this.Id}'].Response = {Interaction.Response.Body};");
+                Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'].Response = {Interaction.Response.Body};");
             }
 
             return Interaction;
