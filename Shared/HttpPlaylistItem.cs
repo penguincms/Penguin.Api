@@ -157,13 +157,20 @@ namespace Penguin.Api.Shared
                     if (ex is WebException wex)
                     {
                         HttpWebResponse errorResponse = wex.Response as HttpWebResponse;
-                        if (errorResponse.StatusCode != HttpStatusCode.NotFound)
+
+                        if (errorResponse is null || errorResponse.StatusCode != HttpStatusCode.NotFound)
                         {
                             this.Response.Status = ApiServerResponseStatus.Error;
 
-                            using (StreamReader sr = new StreamReader(wex.Response.GetResponseStream()))
+                            try
                             {
-                                this.Response.Body = sr.ReadToEnd();
+                                using (StreamReader sr = new StreamReader(wex.Response.GetResponseStream()))
+                                {
+                                    this.Response.Body = sr.ReadToEnd();
+                                }
+                            } catch(Exception iex)
+                            {
+                                this.Response.Body = "Error retrieving response body: " + iex.Message;
                             }
                         }
                         else
@@ -171,7 +178,10 @@ namespace Penguin.Api.Shared
                             this.Response.Status = ApiServerResponseStatus.Warning;
                         }
 
-                        FillHeaders(errorResponse.Headers);
+                        if (errorResponse != null)
+                        {
+                            FillHeaders(errorResponse.Headers);
+                        }
                     }
                     else
                     {
