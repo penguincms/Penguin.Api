@@ -26,7 +26,7 @@ namespace Penguin.Api.SystemItems
         {
             if (!base.TryGetValue(path, out value))
             {
-                value = this.Values[path];
+                return this.Values.TryGetValue(path, out value);
             }
             return true;
         }

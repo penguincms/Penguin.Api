@@ -57,6 +57,12 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(payload));
             }
 
+            if(payload.Body is null)
+            {
+                newValue = null;
+                return false;
+            }
+
             JToken sourceObject = JToken.Parse(payload.Body);
 
             JToken sourceToken = sourceObject.SelectToken(sourcePath);
