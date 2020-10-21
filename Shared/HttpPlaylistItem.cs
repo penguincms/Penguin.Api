@@ -87,14 +87,19 @@ namespace Penguin.Api.Shared
             }
         }
 
-        public void ApplyHeaders(IApiPlaylistSessionContainer Container)
+        public void ApplyHeaders(IApiPlaylistSessionContainer Container, TRequest request)
         {
             if (Container is null)
             {
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            foreach (HttpHeader ph in this.Request.Headers)
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            foreach (HttpHeader ph in request.Headers)
             {
                 List<string> keys = new List<string>();
 
@@ -131,6 +136,8 @@ namespace Penguin.Api.Shared
             try
             {
                 clonedRequest = this.Transform(Container);
+
+                this.ApplyHeaders(Container, clonedRequest);
 
                 void FillHeaders(WebHeaderCollection headers)
                 {

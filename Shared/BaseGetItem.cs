@@ -8,7 +8,10 @@ namespace Penguin.Api.Shared
     {
         public override IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container)
         {
-            this.ApplyHeaders(Container);
+            if (Container is null)
+            {
+                throw new ArgumentNullException(nameof(Container));
+            }
 
             return this.BuildResponse(Container);
         }

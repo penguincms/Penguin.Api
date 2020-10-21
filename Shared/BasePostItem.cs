@@ -45,7 +45,7 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            this.ApplyHeaders(Container);
+
 
             return this.BuildResponse(Container);
         }
