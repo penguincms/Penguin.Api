@@ -17,7 +17,7 @@
     <PackageReference Include="Penguin.Api.Abstractions" Version="5.0.2-TA9KKLU" />
     <PackageReference Include="Penguin.Reflection" Version="5.0.2-TA9KKLU" />
     <PackageReference Include="Penguin.Json" Version="5.0.2-TA9KKLU" />
-    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.0.2-TA9KRTY" />
+    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.0.1-TAA1LRH" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
 </Project>
