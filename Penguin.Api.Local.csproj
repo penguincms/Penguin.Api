@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
-    <PackageReference Include="Jint" Version="2.11.58" />
+    <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <ProjectReference Include="..\Penguin.Api.Abstractions\Penguin.Api.Abstractions.Local.csproj" />
     <ProjectReference Include="..\Penguin.Debugging\Penguin.Debugging.Local.csproj" />
@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Penguin.SystemExtensions.Abstractions\Penguin.SystemExtensions.Abstractions.Local.csproj" />
     <ProjectReference Include="..\Penguin.Web\Penguin.Web.Local.csproj" />
     <ProjectReference Include="..\Penguin.Web.Abstractions\Penguin.Web.Abstractions.Local.csproj" />
+    <ProjectReference Include="..\Penguin.Web.Http\Penguin.Web.Http.Local.csproj" />
     <ProjectReference Include="..\Penguin.Web.WebClientEx\Penguin.Web.WebClientEx.Local.csproj" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
