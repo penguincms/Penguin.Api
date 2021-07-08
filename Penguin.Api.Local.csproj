@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageProjectUrl>https://github.com/penguincms/Penguin.Api</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/PenguinCMS/Penguin.Api</PackageProjectUrl>
     <DocumentationFile>Penguin.Api.xml</DocumentationFile>
     <Version>5.0.5</Version>
     <AssemblyName>Penguin.Api</AssemblyName>
@@ -16,6 +16,7 @@
     <ProjectReference Include="..\Penguin.Debugging\Penguin.Debugging.Local.csproj" />
     <ProjectReference Include="..\Penguin.Extensions.Exceptions\Penguin.Extensions.Exceptions.Local.csproj" />
     <ProjectReference Include="..\Penguin.Extensions.String\Penguin.Extensions.String.Local.csproj" />
+    <ProjectReference Include="..\Penguin.FileStreams\Penguin.FileStreams.Local.csproj" />
     <ProjectReference Include="..\Penguin.Json\Penguin.Json.Local.csproj" />
     <ProjectReference Include="..\Penguin.Json.Abstractions\Penguin.Json.Abstractions.Local.csproj" />
     <ProjectReference Include="..\Penguin.Reflection\Penguin.Reflection.Local.csproj" />
