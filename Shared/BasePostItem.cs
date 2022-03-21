@@ -1,4 +1,4 @@
-﻿using Penguin.Api.Abstractions.Enumerations;
+using Penguin.Api.Abstractions.Enumerations;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Web.Abstractions.Interfaces;
 using System;
@@ -44,8 +44,6 @@ namespace Penguin.Api.Shared
             {
                 throw new ArgumentNullException(nameof(Container));
             }
-
-
 
             return this.BuildResponse(Container);
         }

@@ -1,4 +1,4 @@
-﻿using Penguin.Api.Abstractions.Enumerations;
+using Penguin.Api.Abstractions.Enumerations;
 using Penguin.Api.Abstractions.Extensions;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Forms;
@@ -220,8 +220,6 @@ namespace Penguin.Api.Shared
 
             string outputString = inputString;
 
-
-
             while (outputString.Contains("}"))
             {
                 int firstClose = outputString.IndexOf("}", StringComparison.OrdinalIgnoreCase);
@@ -234,7 +232,6 @@ namespace Penguin.Api.Shared
 
                 outputString = outputString.Replace($"{{{temp}}}", this.FindReplacement(temp, Container));
             }
-
 
             if (this.QueryParameters.Any())
             {
