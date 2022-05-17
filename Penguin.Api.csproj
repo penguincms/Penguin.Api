@@ -17,7 +17,7 @@
     <PackageReference Include="Penguin.Web" Version="5.0.6-TAX9354" />
     <PackageReference Include="Penguin.Reflection" Version="5.0.6-TAX9354" />
     <PackageReference Include="Penguin.Json" Version="5.0.6-TAX9354" />
-    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.0.6-TAX9354" />
+    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.0.6-TAXM8PJ" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
 </Project>
