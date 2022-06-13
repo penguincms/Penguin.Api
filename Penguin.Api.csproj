@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
-    <PackageProjectUrl>https://github.com/PenguinCms/Penguin.Api</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/PenguinCMS/Penguin.Api</PackageProjectUrl>
     <DocumentationFile>Penguin.Api.xml</DocumentationFile>
     <Version>5.0.5</Version>
     <AssemblyName>Penguin.Api</AssemblyName>
@@ -12,12 +12,12 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
     <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Penguin.SystemExtensions" Version="5.0.6-TAX9354" />
-    <PackageReference Include="Penguin.Api.Abstractions" Version="5.0.6-TAX9354" />
-    <PackageReference Include="Penguin.Web" Version="5.0.6-TAX9354" />
-    <PackageReference Include="Penguin.Reflection" Version="5.0.6-TAX9354" />
-    <PackageReference Include="Penguin.Json" Version="5.0.6-TAX9354" />
-    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.0.6-TAXM8PJ" />
+    <PackageReference Include="Penguin.SystemExtensions" Version="5.0.6-TAZCES9" />
+    <PackageReference Include="Penguin.Api.Abstractions" Version="5.0.6-TAZCES9" />
+    <PackageReference Include="Penguin.Web" Version="5.0.6-TAZCES9" />
+    <PackageReference Include="Penguin.Reflection" Version="5.0.6-TAZCES9" />
+    <PackageReference Include="Penguin.Json" Version="5.0.6-TAZCES9" />
+    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.0.6-TAZCES9" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
 </Project>

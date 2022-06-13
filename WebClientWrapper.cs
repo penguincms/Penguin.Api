@@ -1,4 +1,5 @@
 ﻿using Penguin.Web.Abstractions;
+using Penguin.Web.Abstractions.Interfaces;
 using System.Net;
 
 namespace Penguin.Api

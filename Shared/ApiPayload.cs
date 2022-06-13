@@ -1,5 +1,5 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Extensions.Strings;
+using Penguin.Extensions.String;
 using Penguin.Web;
 using System;
 using System.Collections.Generic;

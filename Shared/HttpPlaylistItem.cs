@@ -3,7 +3,7 @@ using Penguin.Api.Abstractions.Extensions;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Forms;
 using Penguin.Api.Playlist;
-using Penguin.Extensions.Strings;
+using Penguin.Extensions.String;
 using Penguin.Json.Extensions;
 using Penguin.Web.Abstractions.Interfaces;
 using Penguin.Web.Headers;

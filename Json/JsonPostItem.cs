@@ -2,7 +2,7 @@
 using Penguin.Api.Abstractions.Extensions;
 using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Api.Shared;
-using Penguin.Extensions.Strings;
+using Penguin.Extensions.String;
 using Penguin.Json;
 using Penguin.Web.Abstractions.Interfaces;
 using System;

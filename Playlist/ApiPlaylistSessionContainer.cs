@@ -3,6 +3,7 @@ using Penguin.Api.Abstractions.ObjectArrays;
 using Penguin.Api.ObjectArrays;
 using Penguin.Web;
 using Penguin.Web.Abstractions;
+using Penguin.Web.Abstractions.Interfaces;
 using System;
 
 namespace Penguin.Api.Playlist

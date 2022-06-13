@@ -1,5 +1,5 @@
 ﻿using Penguin.Api.Abstractions.ObjectArrays;
-using Penguin.Extensions.Strings;
+using Penguin.Extensions.String;
 using Penguin.Reflection;
 using System;
 using System.Collections.Generic;

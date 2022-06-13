@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Extensions.Strings;
+using Penguin.Extensions.String;
 using System;
 using System.Collections.Generic;
 
