@@ -6,8 +6,8 @@ namespace Penguin.Api.Shared
     {
         public string Id { get; set; }
         public EmptyPayload Request { get; } = new EmptyPayload();
-        IApiPayload IApiServerInteraction.Request => this.Request;
+        IApiPayload IApiServerInteraction.Request => Request;
         public EmptyResponsePayload Response { get; } = new EmptyResponsePayload();
-        IApiServerResponse IApiServerInteraction.Response => this.Response;
+        IApiServerResponse IApiServerInteraction.Response => Response;
     }
 }

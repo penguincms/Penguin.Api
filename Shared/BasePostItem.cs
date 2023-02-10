@@ -31,7 +31,10 @@ namespace Penguin.Api.Shared
             }
         }
 
-        public static bool IsSupportedMethod(string method) => MethodStrings.Any(m => string.Equals(method, m, StringComparison.OrdinalIgnoreCase));
+        public static bool IsSupportedMethod(string method)
+        {
+            return MethodStrings.Any(m => string.Equals(method, m, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     public abstract class BasePostItem<TRequest, TResponse> : HttpPlaylistItem<TRequest, TResponse>, IPostItem where TResponse : ApiServerResponse, new() where TRequest : ApiPayload, new()
@@ -40,12 +43,7 @@ namespace Penguin.Api.Shared
 
         public override IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container)
         {
-            if (Container is null)
-            {
-                throw new ArgumentNullException(nameof(Container));
-            }
-
-            return this.BuildResponse(Container);
+            return Container is null ? throw new ArgumentNullException(nameof(Container)) : BuildResponse(Container);
         }
 
         public abstract void FillBody(string source);
@@ -56,7 +54,7 @@ namespace Penguin.Api.Shared
                 ? throw new ArgumentNullException(nameof(Container))
                 : request is null
                 ? throw new ArgumentNullException(nameof(request))
-                : Container.Client.UploadString(request.Url, this.Method.ToString(), request.ToString());
+                : Container.Client.UploadString(request.Url, Method.ToString(), request.ToString());
         }
 
         public override TRequest Transform(IApiPlaylistSessionContainer Container)
@@ -68,7 +66,7 @@ namespace Penguin.Api.Shared
 
             TRequest clonedRequest = base.Transform(Container);
 
-            foreach (ITransformation transformation in this.Transformations)
+            foreach (ITransformation transformation in Transformations)
             {
                 foreach (KeyValuePair<string, IApiServerResponse> response in Container.Interactions.Responses)
                 {
@@ -87,7 +85,7 @@ namespace Penguin.Api.Shared
                 return false;
             }
 
-            return this.TryCreate(request, response, (contentType) => contentType.StartsWith(targetContentType, StringComparison.OrdinalIgnoreCase), out item);
+            return TryCreate(request, response, (contentType) => contentType.StartsWith(targetContentType, StringComparison.OrdinalIgnoreCase), out item);
         }
 
         public bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, Func<string, bool> contentTypeCheck, out HttpPlaylistItem<TRequest, TResponse> item)
@@ -104,7 +102,7 @@ namespace Penguin.Api.Shared
 
             if (BasePostItem.IsSupportedMethod(request.Method) && contentTypeCheck(request.ContentType))
             {
-                BasePostItem<TRequest, TResponse> bi = Activator.CreateInstance(this.GetType()) as BasePostItem<TRequest, TResponse>;
+                BasePostItem<TRequest, TResponse> bi = Activator.CreateInstance(GetType()) as BasePostItem<TRequest, TResponse>;
 
                 item = bi;
 

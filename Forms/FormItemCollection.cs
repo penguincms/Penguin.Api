@@ -10,7 +10,10 @@ namespace Penguin.Api.Forms
     {
         public string BadString { get; set; }
 
-        public FormItemCollection(string postString) => this.FromString(postString);
+        public FormItemCollection(string postString)
+        {
+            FromString(postString);
+        }
 
         public FormItemCollection()
         {
@@ -18,26 +21,38 @@ namespace Penguin.Api.Forms
 
         public string this[string key]
         {
-            get => this.BackingList.Single(h => h.Name == key).Value;
-            set => this.FindOrCreate(key).Value = value;
+            get => BackingList.Single(h => h.Name == key).Value;
+            set => FindOrCreate(key).Value = value;
         }
 
-        public static FormItemCollection Parse(string toParse) => new FormItemCollection(toParse);
+        public static FormItemCollection Parse(string toParse)
+        {
+            return new FormItemCollection(toParse);
+        }
 
         public void Add(string name, string value)
         {
-            this.Add(new FormItem()
+            Add(new FormItem()
             {
                 Name = name,
                 Value = value
             });
         }
 
-        public bool ContainsKey(string key) => this.Any(fi => fi.Name == key);
+        public bool ContainsKey(string key)
+        {
+            return this.Any(fi => fi.Name == key);
+        }
 
-        string IConvertible<string>.Convert() => this.ToString();
+        string IConvertible<string>.Convert()
+        {
+            return ToString();
+        }
 
-        void IConvertible<string>.Convert(string fromT) => this.FromString(fromT);
+        void IConvertible<string>.Convert(string fromT)
+        {
+            FromString(fromT);
+        }
 
         public void FromString(string collection)
         {
@@ -46,13 +61,13 @@ namespace Penguin.Api.Forms
                 throw new ArgumentNullException(nameof(collection));
             }
 
-            this.BackingList.Clear();
+            BackingList.Clear();
 
             collection = collection.TrimEnd('&');
 
             if (collection.Count(c => c == '&') != collection.Count(c => c == '=') - 1)
             {
-                this.BadString = collection;
+                BadString = collection;
                 return;
             }
 
@@ -66,7 +81,7 @@ namespace Penguin.Api.Forms
                 string Key = vals.Split('=')[0];
                 string Value = vals.Split('=')[1];
 
-                this.BackingList.Add(new FormItem()
+                BackingList.Add(new FormItem()
                 {
                     Name = Uri.UnescapeDataString(Key),
                     Value = Uri.UnescapeDataString(Value)
@@ -76,24 +91,24 @@ namespace Penguin.Api.Forms
 
         public override string ToString()
         {
-            if (!string.IsNullOrWhiteSpace(this.BadString) || !this.BackingList.Any())
+            if (!string.IsNullOrWhiteSpace(BadString) || !BackingList.Any())
             {
-                return this.BadString;
+                return BadString;
             }
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             bool first = true;
-            foreach (FormItem thisValue in this.BackingList)
+            foreach (FormItem thisValue in BackingList)
             {
                 if (!first)
                 {
-                    sb.Append("&");
+                    _ = sb.Append('&');
                 }
 
-                sb.Append(Uri.EscapeDataString(thisValue.Name));
-                sb.Append("=");
-                sb.Append(Uri.EscapeDataString(thisValue.Value));
+                _ = sb.Append(Uri.EscapeDataString(thisValue.Name));
+                _ = sb.Append('=');
+                _ = sb.Append(Uri.EscapeDataString(thisValue.Value));
 
                 first = false;
             }
@@ -103,7 +118,7 @@ namespace Penguin.Api.Forms
 
         private FormItem FindOrCreate(string key)
         {
-            FormItem val = this.BackingList.SingleOrDefault(h => h.Name == key);
+            FormItem val = BackingList.SingleOrDefault(h => h.Name == key);
 
             if (val is null)
             {
@@ -112,7 +127,7 @@ namespace Penguin.Api.Forms
                     Name = key
                 };
 
-                this.BackingList.Add(val);
+                BackingList.Add(val);
             }
 
             return val;

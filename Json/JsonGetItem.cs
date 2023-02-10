@@ -16,19 +16,22 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            Container.JavascriptEngine.Execute("globalThis.Playlist = globalThis.Playlist || {};");
-            Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'] = {{}};");
+            _ = Container.JavascriptEngine.Execute("globalThis.Playlist = globalThis.Playlist || {};");
+            _ = Container.JavascriptEngine.Execute($"globalThis.Playlist['{Id}'] = {{}};");
 
             IApiServerInteraction<JsonGetPayload, JsonResponsePayload> Interaction = base.Execute(Container);
 
             if (new JsonString(Interaction.Response.Body).IsValid)
             {
-                Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'].Response = {Interaction.Response.Body};");
+                _ = Container.JavascriptEngine.Execute($"globalThis.Playlist['{Id}'].Response = {Interaction.Response.Body};");
             }
 
             return Interaction;
         }
 
-        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonGetPayload, JsonResponsePayload> item) => this.TryCreate(request, response, "application/json", out item);
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonGetPayload, JsonResponsePayload> item)
+        {
+            return TryCreate(request, response, "application/json", out item);
+        }
     }
 }

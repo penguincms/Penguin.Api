@@ -10,6 +10,9 @@ namespace Penguin.Api.Shared
         public Exception Exception { get; set; }
         public ApiServerResponseStatus Status { get; set; }
 
-        public override string ToString() => this.Body;
+        public override string ToString()
+        {
+            return Body;
+        }
     }
 }

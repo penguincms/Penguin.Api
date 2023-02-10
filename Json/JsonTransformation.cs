@@ -37,18 +37,22 @@ namespace Penguin.Api.Json
             {
                 (string sourceId, string sourcePath) = SplitPath(toReplace);
 
-                if(Container.Interactions.Responses.TryGetValue(sourceId, out IApiServerResponse response)) {
+                if (Container.Interactions.Responses.TryGetValue(sourceId, out IApiServerResponse response))
+                {
                     return TryGetTransformedValue(response, sourcePath, out newValue);
-                } else
+                }
+                else
                 {
                     newValue = null;
                     return false;
                 }
-                
             }
         }
 
-        public static (string Id, string Path) SplitPath(string value) => (value.To("."), value.From("."));
+        public static (string Id, string Path) SplitPath(string value)
+        {
+            return (value.To("."), value.From("."));
+        }
 
         public static bool TryGetTransformedValue(IApiServerResponse payload, string sourcePath, out object newValue)
         {
@@ -57,7 +61,7 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(payload));
             }
 
-            if(payload.Body is null)
+            if (payload.Body is null)
             {
                 newValue = null;
                 return false;
@@ -79,15 +83,18 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == this.SourceId)
+            if (responseToCheck.Key == SourceId)
             {
-                if (responseToCheck.Value.TryGetValue(this.SourcePath, out object value))
+                if (responseToCheck.Value.TryGetValue(SourcePath, out object value))
                 {
-                    destination.SetValue(this.DestinationPath, value);
+                    destination.SetValue(DestinationPath, value);
                 }
             }
         }
 
-        bool ITransformation.TryGetTransformedValue(IApiServerResponse payload, out object newValue) => TryGetTransformedValue(payload, this.SourcePath, out newValue);
+        bool ITransformation.TryGetTransformedValue(IApiServerResponse payload, out object newValue)
+        {
+            return TryGetTransformedValue(payload, SourcePath, out newValue);
+        }
     }
 }

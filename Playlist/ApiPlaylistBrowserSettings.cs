@@ -36,7 +36,7 @@ namespace Penguin.Api.Playlist
                 string jsonName = pi.GetJsonName();
                 string value = pi.GetValue(o)?.ToString();
 
-                this.Configurations.Add(new PlaylistConfiguration()
+                Configurations.Add(new PlaylistConfiguration()
                 {
                     Key = jsonName,
                     Value = value

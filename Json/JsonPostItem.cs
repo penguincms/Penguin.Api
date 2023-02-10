@@ -20,19 +20,19 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            Container.JavascriptEngine.Execute("globalThis.Playlist = globalThis.Playlist || {};");
-            Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'] = {{}};");
+            _ = Container.JavascriptEngine.Execute("globalThis.Playlist = globalThis.Playlist || {};");
+            _ = Container.JavascriptEngine.Execute($"globalThis.Playlist['{Id}'] = {{}};");
 
-            if (!string.IsNullOrWhiteSpace(this.Request.Body))
+            if (!string.IsNullOrWhiteSpace(Request.Body))
             {
-                Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'].Request = {this.Request.Body};");
+                _ = Container.JavascriptEngine.Execute($"globalThis.Playlist['{Id}'].Request = {Request.Body};");
             }
 
             IApiServerInteraction<JsonPostPayload, JsonResponsePayload> Interaction = base.Execute(Container);
 
             if (new JsonString(Interaction.Response.Body).IsValid)
             {
-                Container.JavascriptEngine.Execute($"globalThis.Playlist['{this.Id}'].Response = {Interaction.Response.Body};");
+                _ = Container.JavascriptEngine.Execute($"globalThis.Playlist['{Id}'].Response = {Interaction.Response.Body};");
             }
 
             return Interaction;
@@ -40,11 +40,14 @@ namespace Penguin.Api.Json
 
         public override void FillBody(string source)
         {
-            this.Request = this.Request ?? new JsonPostPayload();
-            this.Request.Body = source;
+            Request ??= new JsonPostPayload();
+            Request.Body = source;
         }
 
-        public IEnumerable<JProperty> GetTransformationPoints() => !string.IsNullOrWhiteSpace(this.Request.Body) ? GetTransformationPoints(JObject.Parse(this.Request.Body)) : new List<JProperty>();
+        public IEnumerable<JProperty> GetTransformationPoints()
+        {
+            return !string.IsNullOrWhiteSpace(Request.Body) ? GetTransformationPoints(JObject.Parse(Request.Body)) : new List<JProperty>();
+        }
 
         public override JsonPostPayload Transform(IApiPlaylistSessionContainer Container)
         {
@@ -55,17 +58,17 @@ namespace Penguin.Api.Json
 
             JsonPostPayload clonedRequest = base.Transform(Container);
 
-            List<JProperty> jprops = this.GetTransformationPoints().ToList();
+            List<JProperty> jprops = GetTransformationPoints().ToList();
 
             foreach (JProperty jprop in jprops)
             {
                 if (jprop.Value is JArray ja)
                 {
-                    this.TransformArray(Container, jprop, ja, clonedRequest);
+                    TransformArray(Container, jprop, ja, clonedRequest);
                 }
                 else
                 {
-                    this.TransformValue(Container, jprop, clonedRequest);
+                    TransformValue(Container, jprop, clonedRequest);
                 }
             }
 
@@ -94,7 +97,7 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(clonedRequest));
             }
 
-            JArray newArray = new JArray();
+            JArray newArray = new();
 
             bool replace = false; ;
 
@@ -102,16 +105,9 @@ namespace Penguin.Api.Json
             {
                 JToken v = jt;
 
-                if (this.TryGetReplacement(v.ToString(), Container, out object newv))
+                if (TryGetReplacement(v.ToString(), Container, out object newv))
                 {
-                    if (newv is null)
-                    {
-                        v = null;
-                    }
-                    else
-                    {
-                        v = newv is JToken jto ? jto : new JValue($"{newv}");
-                    }
+                    v = newv is null ? null : newv is JToken jto ? jto : new JValue($"{newv}");
 
                     replace = true;
                 }
@@ -121,7 +117,7 @@ namespace Penguin.Api.Json
 
             if (replace)
             {
-                clonedRequest.SetValue(jprop.Path, newArray.ToString(), jprop.Name.Substring(1));
+                clonedRequest.SetValue(jprop.Path, newArray.ToString(), jprop.Name[1..]);
             }
         }
 
@@ -140,7 +136,7 @@ namespace Penguin.Api.Json
             string SourceValue = jprop.Value.ToString();
             string DestPath = jprop.Path;
 
-            string destPropName = DestPath.FromLast(".").Substring(1);
+            string destPropName = DestPath.FromLast(".")[1..];
 
             if (this.TryFindReplacement(SourceValue, Container, out object v))
             {
@@ -148,11 +144,15 @@ namespace Penguin.Api.Json
             }
         }
 
-        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonPostPayload, JsonResponsePayload> item) 
-            => this.TryCreate(request, response, "application/json", out item);
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<JsonPostPayload, JsonResponsePayload> item)
+        {
+            return TryCreate(request, response, "application/json", out item);
+        }
 
-        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object v) 
-            => base.TryGetReplacement(toReplace, Container, out v) || JsonTransformation.TryGetReplacement(toReplace, Container, out v);
+        public override bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object value)
+        {
+            return base.TryGetReplacement(toReplace, Container, out value) || JsonTransformation.TryGetReplacement(toReplace, Container, out value);
+        }
 
         private static IEnumerable<JProperty> GetTransformationPoints(JToken jtoken)
         {

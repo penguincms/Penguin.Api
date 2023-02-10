@@ -7,9 +7,9 @@ namespace Penguin.Api.Binary
     {
         public override void FillBody(string source)
         {
-            this.Request = this.Request ?? new BinaryPostPayload();
-            this.Request.Body = new BinaryPostBody();
-            this.Request.Body.Convert(source);
+            Request ??= new BinaryPostPayload();
+            Request.Body = new BinaryPostBody();
+            Request.Body.Convert(source);
         }
 
         public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<BinaryPostPayload, GenericResponsePayload> item)

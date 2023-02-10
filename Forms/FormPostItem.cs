@@ -8,9 +8,9 @@ namespace Penguin.Api.Forms
     {
         public override void FillBody(string source)
         {
-            this.Request = this.Request ?? new FormPostPayload();
-            this.Request.Body = new FormItemCollection();
-            this.Request.Body.FromString(source);
+            Request ??= new FormPostPayload();
+            Request.Body = new FormItemCollection();
+            Request.Body.FromString(source);
         }
 
         public override FormPostPayload Transform(IApiPlaylistSessionContainer Container)
@@ -24,7 +24,7 @@ namespace Penguin.Api.Forms
                     continue;
                 }
 
-                fi.Name = fi.Name.Substring(1);
+                fi.Name = fi.Name[1..];
                 if (base.TryGetReplacement(fi.Value, Container, out object v))
                 {
                     fi.Value = v.ToString();
@@ -36,7 +36,7 @@ namespace Penguin.Api.Forms
 
         public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<FormPostPayload, GenericResponsePayload> item)
         {
-            if (this.TryCreate(request, response, "application/x-www-form-urlencoded", out item))
+            if (TryCreate(request, response, "application/x-www-form-urlencoded", out item))
             {
                 item.Request.Body = new FormItemCollection(request.BodyText);
 

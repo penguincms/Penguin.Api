@@ -22,23 +22,26 @@ namespace Penguin.Api.Forms
                 throw new ArgumentNullException(nameof(responseToCheck));
             }
 
-            if (responseToCheck.Key != this.SourceId)
+            if (responseToCheck.Key != SourceId)
             {
                 return;
             }
 
-            responseToCheck.Value.TryGetValue(this.SourcePath, out object sourceValue);
+            _ = responseToCheck.Value.TryGetValue(SourcePath, out object sourceValue);
 
-            if (!string.IsNullOrWhiteSpace(this.DestinationPath))
+            if (!string.IsNullOrWhiteSpace(DestinationPath))
             {
-                destination.SetValue(this.DestinationPath, sourceValue);
+                destination.SetValue(DestinationPath, sourceValue);
             }
             else
             {
-                destination.SetValue(this.SourcePath, sourceValue);
+                destination.SetValue(SourcePath, sourceValue);
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue) => source is null ? throw new ArgumentNullException(nameof(source)) : source.TryGetValue(this.SourcePath, out newValue);
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
+        {
+            return source is null ? throw new ArgumentNullException(nameof(source)) : source.TryGetValue(SourcePath, out newValue);
+        }
     }
 }

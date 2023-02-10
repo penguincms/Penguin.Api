@@ -19,20 +19,20 @@ namespace Penguin.Api.Shared
 
             string Path;
 
-            if (this.SourcePath?.Contains(".") ?? false)
+            if (SourcePath?.Contains('.') ?? false)
             {
-                Path = this.SourcePath.From(".");
+                Path = SourcePath.From(".");
             }
             else
             {
-                destination.TryGetValue(this.DestinationPath, out object oPath);
+                _ = destination.TryGetValue(DestinationPath, out object oPath);
                 Path = oPath.ToString();
             }
 
             string Key;
-            if (!string.IsNullOrWhiteSpace(this.SourcePath))
+            if (!string.IsNullOrWhiteSpace(SourcePath))
             {
-                Key = this.SourcePath.To(".");
+                Key = SourcePath.To(".");
             }
             else
             {
@@ -42,11 +42,14 @@ namespace Penguin.Api.Shared
 
             if (responseToCheck.Key == Key)
             {
-                responseToCheck.Value.TryGetValue(Path, out object value);
-                destination.SetValue(this.DestinationPath, value);
+                _ = responseToCheck.Value.TryGetValue(Path, out object value);
+                destination.SetValue(DestinationPath, value);
             }
         }
 
-        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue) => source is null ? throw new System.ArgumentNullException(nameof(source)) : source.TryGetValue(this.SourcePath, out newValue);
+        public bool TryGetTransformedValue(IApiServerResponse source, out object newValue)
+        {
+            return source is null ? throw new System.ArgumentNullException(nameof(source)) : source.TryGetValue(SourcePath, out newValue);
+        }
     }
 }

@@ -6,8 +6,8 @@ namespace Penguin.Api.Xml
     {
         public XmlGetPayload()
         {
-            this.Headers.Add("Accept", "application/Xml, text/plain, */*");
-            this.Headers.Add("Content-Type", "application/Xml;charset=UTF-8");
+            Headers.Add("Accept", "application/Xml, text/plain, */*");
+            Headers.Add("Content-Type", "application/Xml;charset=UTF-8");
         }
     }
 }

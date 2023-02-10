@@ -27,7 +27,7 @@ namespace Penguin.Api.Json
 
             if (destToken is null)
             {
-                Queue<string> paths = new Queue<string>();
+                Queue<string> paths = new();
 
                 foreach (string pathPart in path.Split('.'))
                 {

@@ -19,29 +19,28 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == this.SourceId)
+            if (responseToCheck.Key == SourceId)
             {
-                HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+                HtmlAgilityPack.HtmlDocument htmlDocument = new();
                 htmlDocument.LoadHtml(responseToCheck.Value.Body);
 
-                HtmlAgilityPack.HtmlNode node = null;
-
-                if (this.FormName.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+                HtmlNode node;
+                if (FormName.StartsWith("#", StringComparison.OrdinalIgnoreCase))
                 {
-                    node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@id='{this.FormName.Substring(1)}']");
+                    node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@id='{FormName[1..]}']");
 
                     if (node is null)
                     {
-                        throw new NullReferenceException($"Form with id \"{this.FormName.Substring(1)}\" was not found on response \"{this.SourceId}\"");
+                        throw new NullReferenceException($"Form with id \"{FormName[1..]}\" was not found on response \"{SourceId}\"");
                     }
                 }
                 else
                 {
-                    node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@name='{this.FormName}']");
+                    node = htmlDocument.DocumentNode.SelectSingleNode($"//form[@name='{FormName}']");
 
                     if (node is null)
                     {
-                        throw new NullReferenceException($"Form with name \"{this.FormName}\" was not found on response \"{this.SourceId}\"");
+                        throw new NullReferenceException($"Form with name \"{FormName}\" was not found on response \"{SourceId}\"");
                     }
                 }
 
@@ -59,7 +58,7 @@ namespace Penguin.Api.Shared
                     {
                         string name = cnode.Attributes["name"].Value;
 
-                        if (!destination.TryGetValue(name, out object _))
+                        if (!destination.TryGetValue(name, out _))
                         {
                             destination.SetValue(name, valueAttribute.Value);
                         }

@@ -1,8 +1,6 @@
 ﻿using Penguin.Api.Abstractions.Interfaces;
-using Penguin.Api.Abstractions.ObjectArrays;
 using Penguin.Api.ObjectArrays;
 using Penguin.Web;
-using Penguin.Web.Abstractions;
 using Penguin.Web.Abstractions.Interfaces;
 using System;
 
@@ -18,27 +16,29 @@ namespace Penguin.Api.Playlist
 
         #region IDisposable Support
 
-        private bool disposedValue = false; // To detect redundant calls
+        private bool disposedValue; // To detect redundant calls
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose() =>
+        public void Dispose()
+        {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            this.Dispose(true);// TODO: uncomment the following line if the finalizer is overridden above.// GC.SuppressFinalize(this);
+            Dispose(true);// TODO: uncomment the following line if the finalizer is overridden above.// GC.SuppressFinalize(this);
+        }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposedValue)
+            if (!disposedValue)
             {
                 if (disposing)
                 {
-                    this.Client.Dispose();
-                    this.JavascriptEngine.Dispose();
+                    Client.Dispose();
+                    JavascriptEngine.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
 
-                this.disposedValue = true;
+                disposedValue = true;
             }
         }
 

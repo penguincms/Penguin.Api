@@ -6,20 +6,38 @@ namespace Penguin.Api.PostBody
     {
         public string Value { get; set; }
 
-        public TextPostBody(string value) => this.Value = value;
+        public TextPostBody(string value)
+        {
+            Value = value;
+        }
 
         public TextPostBody()
         {
         }
 
-        public static implicit operator string(TextPostBody d) => d?.Value;
+        public static implicit operator string(TextPostBody d)
+        {
+            return d?.Value;
+        }
 
-        public static implicit operator TextPostBody(string b) => new TextPostBody(b);
+        public static implicit operator TextPostBody(string b)
+        {
+            return new TextPostBody(b);
+        }
 
-        public string Convert() => this.Value;
+        public string Convert()
+        {
+            return Value;
+        }
 
-        public void Convert(string fromT) => this.Value = fromT;
+        public void Convert(string fromT)
+        {
+            Value = fromT;
+        }
 
-        public override string ToString() => this.Value;
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 }

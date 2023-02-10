@@ -9,14 +9,20 @@ namespace Penguin.Api.Shared
     public abstract class ApiPayload : IApiPayload
     {
         public HttpHeaderCollection Headers { get; set; } = new HttpHeaderCollection();
-        IDictionary<string, string> IApiPayload.Headers => this.Headers;
+        IDictionary<string, string> IApiPayload.Headers => Headers;
         public string Url { get; set; }
 
-        public virtual void SetValue(string path, object Value) => this.SetValue(path, Value, null);
+        public virtual void SetValue(string path, object Value)
+        {
+            SetValue(path, Value, null);
+        }
 
         public abstract void SetValue(string path, object Value, string newPropName);
 
-        public override string ToString() => string.Empty;
+        public override string ToString()
+        {
+            return string.Empty;
+        }
 
         public virtual bool TryGetValue(string path, out object value)
         {
@@ -31,7 +37,7 @@ namespace Penguin.Api.Shared
             {
                 string HeaderName = path.From(".");
 
-                value = this.Headers[HeaderName];
+                value = Headers[HeaderName];
 
                 return true;
             }

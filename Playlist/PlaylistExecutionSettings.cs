@@ -14,9 +14,9 @@
 
         public PlaylistExecutionSettings(bool FirstRun = true)
         {
-            this.CopyConfigurations = FirstRun;
-            this.ExecuteCustomJavascript = FirstRun;
-            this.CopyHeaders = FirstRun;
+            CopyConfigurations = FirstRun;
+            ExecuteCustomJavascript = FirstRun;
+            CopyHeaders = FirstRun;
         }
     }
 }

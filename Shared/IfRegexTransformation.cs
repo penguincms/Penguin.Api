@@ -20,11 +20,11 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == this.SourceId)
+            if (responseToCheck.Key == SourceId)
             {
-                if (this.TryGetTransformedValue(responseToCheck.Value, out object newValue))
+                if (TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
-                    destination.SetValue(this.DestinationPath, newValue);
+                    destination.SetValue(DestinationPath, newValue);
                 }
             }
         }
@@ -36,9 +36,9 @@ namespace Penguin.Api.Shared
                 throw new System.ArgumentNullException(nameof(source));
             }
 
-            if (Regex.IsMatch(source.Body, this.RegexExpression))
+            if (Regex.IsMatch(source.Body, RegexExpression))
             {
-                newValue = this.Value;
+                newValue = Value;
                 return true;
             }
             else

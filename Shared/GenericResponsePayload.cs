@@ -11,12 +11,12 @@ namespace Penguin.Api.Shared
         {
             get
             {
-                if (!(this.Headers["Content-Type"]?.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) ?? true))
+                if (!(Headers["Content-Type"]?.StartsWith("text/html", StringComparison.OrdinalIgnoreCase) ?? true))
                 {
-                    this.parseXml = false;
+                    parseXml = false;
                 }
 
-                if (!this.parseXml || string.IsNullOrWhiteSpace(base.Body))
+                if (!parseXml || string.IsNullOrWhiteSpace(base.Body))
                 {
                     return base.Body;
                 }
@@ -27,13 +27,16 @@ namespace Penguin.Api.Shared
                 }
                 catch (Exception)
                 {
-                    this.parseXml = false;
+                    parseXml = false;
                     return base.Body;
                 }
             }
             set => base.Body = value;
         }
 
-        public override void SetValue(string path, object Value, string newPropName) => throw new NotImplementedException();
+        public override void SetValue(string path, object Value, string newPropName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

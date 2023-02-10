@@ -1,4 +1,4 @@
-﻿using Penguin.Api.Abstractions.ObjectArrays;
+﻿using Penguin.Api.Abstractions.Interfaces;
 using Penguin.Extensions.String;
 using Penguin.Reflection;
 using System;
@@ -9,46 +9,50 @@ namespace Penguin.Api.ObjectArrays
 {
     public class ObjectArray : IObjectArray
     {
-        private readonly Dictionary<string, string> backingDictionary = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> backingDictionary = new();
 
-        private readonly Dictionary<string, IObjectArray> initializedArrays = new Dictionary<string, IObjectArray>();
+        private readonly Dictionary<string, IObjectArray> initializedArrays = new();
 
         public string this[string index]
         {
             get
             {
-                if (!this.backingDictionary.TryGetValue(index, out string v))
+                if (!backingDictionary.TryGetValue(index, out string v))
                 {
-                    v = this.GetNew(index);
-                    this.backingDictionary.Add(index, v);
+                    v = GetNew(index);
+                    backingDictionary.Add(index, v);
                 }
 
                 return v;
             }
         }
 
-        public string Get(string toGet)
+        public string Get(string index)
         {
-            string TypeName = toGet.To("[");
-            string index = toGet.From("[").To("]");
+            string TypeName = index.To("[");
 
-            Type arrayType = this.GetType(TypeName);
+            index = index.From("[").To("]");
 
-            if (!this.initializedArrays.TryGetValue(TypeName, out IObjectArray o))
+            Type arrayType = GetType(TypeName);
+
+            if (!initializedArrays.TryGetValue(TypeName, out IObjectArray o))
             {
                 o = Activator.CreateInstance(arrayType) as IObjectArray;
 
-                this.initializedArrays.Add(TypeName, o);
+                initializedArrays.Add(TypeName, o);
             }
 
             return o[index];
         }
 
-        public virtual string GetNew(string index) => throw new NotImplementedException();
+        public virtual string GetNew(string index)
+        {
+            throw new NotImplementedException();
+        }
 
         public Type GetType(string TypeName)
         {
-            if (this.initializedArrays.TryGetValue(TypeName, out IObjectArray array))
+            if (initializedArrays.TryGetValue(TypeName, out IObjectArray array))
             {
                 return array.GetType();
             }

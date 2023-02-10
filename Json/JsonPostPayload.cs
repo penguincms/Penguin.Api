@@ -10,8 +10,8 @@ namespace Penguin.Api.Json
     {
         public JsonPostPayload()
         {
-            this.Headers.Add("Accept", "application/json, text/plain, */*");
-            this.Headers.Add("Content-Type", "application/json;charset=UTF-8");
+            Headers.Add("Accept", "application/json, text/plain, */*");
+            Headers.Add("Content-Type", "application/json;charset=UTF-8");
         }
 
         public override void SetValue(string path, object Value, string newPropName) // Copied from response
@@ -25,7 +25,7 @@ namespace Penguin.Api.Json
             {
                 JToken newToken = (Value as JToken) ?? JToken.Parse(Value.ToString());
 
-                JsonString oldString = new JsonString(this.Body);
+                JsonString oldString = new(Body);
 
                 if (oldString.IsValid &&
                     JToken.Parse(oldString) is JObject oldObject &&
@@ -33,7 +33,7 @@ namespace Penguin.Api.Json
                 {
                     foreach (JProperty prop in oldObject.Properties())
                     {
-                        newObject.Remove(prop.Name);
+                        _ = newObject.Remove(prop.Name);
 
                         newObject.Add(prop.Name, prop.Value);
                     }
@@ -50,7 +50,7 @@ namespace Penguin.Api.Json
 
             if (destToken is null)
             {
-                Queue<string> paths = new Queue<string>();
+                Queue<string> paths = new();
 
                 foreach (string pathPart in path.Split('.'))
                 {

@@ -6,9 +6,9 @@ namespace Penguin.Api.Playlist
     {
         public string Id { get; set; }
         public TRequest Request { get; set; }
-        IApiPayload IApiServerInteraction.Request => this.Request;
+        IApiPayload IApiServerInteraction.Request => Request;
         public TResponse Response { get; set; }
-        IApiServerResponse IApiServerInteraction.Response => this.Response;
+        IApiServerResponse IApiServerInteraction.Response => Response;
     }
 
     public class ApiServerInteraction : IApiServerInteraction

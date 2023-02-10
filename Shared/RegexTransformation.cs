@@ -22,11 +22,11 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == this.SourceId)
+            if (responseToCheck.Key == SourceId)
             {
-                if (this.TryGetTransformedValue(responseToCheck.Value, out object newValue))
+                if (TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
-                    destination.SetValue(this.DestinationPath, newValue);
+                    destination.SetValue(DestinationPath, newValue);
                 }
             }
         }
@@ -40,25 +40,25 @@ namespace Penguin.Api.Shared
                 throw new System.ArgumentNullException(nameof(source));
             }
 
-            if (Regex.IsMatch(source.Body, this.RegexExpression))
+            if (Regex.IsMatch(source.Body, RegexExpression))
             {
                 int mIndex = 0;
-                foreach (Match m in Regex.Matches(source.Body, this.RegexExpression))
+                foreach (Match m in Regex.Matches(source.Body, RegexExpression))
                 {
-                    if (this.MatchIndex == mIndex)
+                    if (MatchIndex == mIndex)
                     {
                         int gIndex = 0;
 
                         foreach (Group g in m.Groups)
                         {
-                            if (gIndex == this.Group)
+                            if (gIndex == Group)
                             {
                                 newValue = g.Value;
                                 return true;
                             }
                             gIndex++;
 
-                            if (gIndex > this.Group)
+                            if (gIndex > Group)
                             {
                                 return false;
                             }
@@ -67,7 +67,7 @@ namespace Penguin.Api.Shared
 
                     mIndex++;
 
-                    if (mIndex > this.MatchIndex)
+                    if (mIndex > MatchIndex)
                     {
                         return false;
                     }

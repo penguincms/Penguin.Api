@@ -26,23 +26,23 @@ namespace Penguin.Api.Shared
         [Display(Order = -100)]
         public TRequest Request { get; set; } = new TRequest();
 
-        IApiPayload IHttpPlaylistItem.Request => this.Request;
+        IApiPayload IHttpPlaylistItem.Request => Request;
 
         [Display(Order = 1000)]
         public TResponse Response { get; protected set; } = new TResponse();
 
-        IApiServerResponse IHttpPlaylistItem.Response => this.Response;
+        IApiServerResponse IHttpPlaylistItem.Response => Response;
 
         [Display(Order = -1000)]
         public string Url
         {
             get
             {
-                string v = this.url;
+                string v = url;
 
-                if (this.QueryParameters.Where(k => !string.IsNullOrWhiteSpace(k.Name)).Any())
+                if (QueryParameters.Where(k => !string.IsNullOrWhiteSpace(k.Name)).Any())
                 {
-                    v += $"?{this.QueryParameters}";
+                    v += $"?{QueryParameters}";
                 }
 
                 return v;
@@ -76,14 +76,14 @@ namespace Penguin.Api.Shared
 
                     if (qStart >= 0)
                     {
-                        string parameters = v.Substring(qStart + 1);
-                        v = v.Substring(0, qStart);
+                        string parameters = v[(qStart + 1)..];
+                        v = v[..qStart];
 
-                        this.QueryParameters = new FormItemCollection(parameters);
+                        QueryParameters = new FormItemCollection(parameters);
                     }
                 }
 
-                this.url = v;
+                url = v;
             }
         }
 
@@ -101,7 +101,7 @@ namespace Penguin.Api.Shared
 
             foreach (HttpHeader ph in request.Headers)
             {
-                List<string> keys = new List<string>();
+                List<string> keys = new();
 
                 foreach (string k in Container.Client.Headers.Keys)
                 {
@@ -131,13 +131,13 @@ namespace Penguin.Api.Shared
             }
 
             TRequest clonedRequest = null;
-            this.Response = Activator.CreateInstance<TResponse>();
+            Response = Activator.CreateInstance<TResponse>();
 
             try
             {
-                clonedRequest = this.Transform(Container);
+                clonedRequest = Transform(Container);
 
-                this.ApplyHeaders(Container, clonedRequest);
+                ApplyHeaders(Container, clonedRequest);
 
                 void FillHeaders(WebHeaderCollection headers)
                 {
@@ -145,21 +145,21 @@ namespace Penguin.Api.Shared
                     {
                         foreach (string key in headers.Keys)
                         {
-                            this.Response.Headers[key] = headers[key];
+                            Response.Headers[key] = headers[key];
                         }
                     }
                 }
 
                 try
                 {
-                    this.Response.Body = this.GetBody(Container, clonedRequest);
-                    this.Response.Status = ApiServerResponseStatus.Success;
+                    Response.Body = GetBody(Container, clonedRequest);
+                    Response.Status = ApiServerResponseStatus.Success;
 
                     FillHeaders(Container.Client.ResponseHeaders);
                 }
                 catch (Exception ex)
                 {
-                    this.Response.Exception = ex;
+                    Response.Exception = ex;
 
                     if (ex is WebException wex)
                     {
@@ -167,22 +167,21 @@ namespace Penguin.Api.Shared
 
                         if (errorResponse is null || errorResponse.StatusCode != HttpStatusCode.NotFound)
                         {
-                            this.Response.Status = ApiServerResponseStatus.Error;
+                            Response.Status = ApiServerResponseStatus.Error;
 
                             try
                             {
-                                using (StreamReader sr = new StreamReader(wex.Response.GetResponseStream()))
-                                {
-                                    this.Response.Body = sr.ReadToEnd();
-                                }
-                            } catch(Exception iex)
+                                using StreamReader sr = new(wex.Response.GetResponseStream());
+                                Response.Body = sr.ReadToEnd();
+                            }
+                            catch (Exception iex)
                             {
-                                this.Response.Body = "Error retrieving response body: " + iex.Message;
+                                Response.Body = "Error retrieving response body: " + iex.Message;
                             }
                         }
                         else
                         {
-                            this.Response.Status = ApiServerResponseStatus.Warning;
+                            Response.Status = ApiServerResponseStatus.Warning;
                         }
 
                         if (errorResponse != null)
@@ -192,52 +191,58 @@ namespace Penguin.Api.Shared
                     }
                     else
                     {
-                        this.Response.Status = ApiServerResponseStatus.Error;
+                        Response.Status = ApiServerResponseStatus.Error;
                         throw;
                     }
                 }
             }
             catch (Exception ex)
             {
-                this.Response.Exception = ex;
-                this.Response.Status = ApiServerResponseStatus.Error;
+                Response.Exception = ex;
+                Response.Status = ApiServerResponseStatus.Error;
             }
 
-            return ApiServerInteraction.Create(clonedRequest, this.Response, this.Id);
+            return ApiServerInteraction.Create(clonedRequest, Response, Id);
         }
 
         public abstract IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container);
 
-        void IPlaylistItem.Execute(IApiPlaylistSessionContainer Container) => this.Execute(Container);
+        void IPlaylistItem.Execute(IApiPlaylistSessionContainer Container)
+        {
+            _ = Execute(Container);
+        }
 
-        IApiServerInteraction IPlaylistItem<IApiServerInteraction>.Execute(IApiPlaylistSessionContainer Container) => this.Execute(Container);
+        IApiServerInteraction IPlaylistItem<IApiServerInteraction>.Execute(IApiPlaylistSessionContainer Container)
+        {
+            return Execute(Container);
+        }
 
         public abstract string GetBody(IApiPlaylistSessionContainer Container, TRequest request);
 
         public virtual string GetTransformedUrl(IApiPlaylistSessionContainer Container)
         {
-            string inputString = this.url;
+            string inputString = url;
 
             string outputString = inputString;
 
-            while (outputString.Contains("}"))
+            while (outputString.Contains('}'))
             {
                 int firstClose = outputString.IndexOf("}", StringComparison.OrdinalIgnoreCase);
 
-                string temp = outputString.Substring(0, firstClose);
+                string temp = outputString[..firstClose];
 
                 int lastOpen = temp.LastIndexOf("{", StringComparison.OrdinalIgnoreCase);
 
-                temp = temp.Substring(lastOpen + 1);
+                temp = temp[(lastOpen + 1)..];
 
                 outputString = outputString.Replace($"{{{temp}}}", this.FindReplacement(temp, Container));
             }
 
-            if (this.QueryParameters.Any())
+            if (QueryParameters.Any())
             {
-                FormItemCollection newParams = new FormItemCollection();
+                FormItemCollection newParams = new();
 
-                foreach (FormItem queryParameter in this.QueryParameters)
+                foreach (FormItem queryParameter in QueryParameters)
                 {
                     newParams.Add(queryParameter.Name, queryParameter.Value);
                 }
@@ -246,9 +251,9 @@ namespace Penguin.Api.Shared
                 {
                     if (queryParameter.Name.StartsWith("$", StringComparison.OrdinalIgnoreCase))
                     {
-                        queryParameter.Name = queryParameter.Name.Substring(1);
+                        queryParameter.Name = queryParameter.Name[1..];
 
-                        if (this.TryGetReplacement(queryParameter.Value, Container, out object newValue))
+                        if (TryGetReplacement(queryParameter.Value, Container, out object newValue))
                         {
                             queryParameter.Value = newValue?.ToString();
                         }
@@ -263,25 +268,28 @@ namespace Penguin.Api.Shared
 
         public override void Reset()
         {
-            this.Response = new TResponse();
-            this.Executed = false;
+            Response = new TResponse();
+            Executed = false;
         }
 
-        public override string ToString() => $"{this.Id} ({this.Url})";
+        public override string ToString()
+        {
+            return $"{Id} ({Url})";
+        }
 
         public virtual TRequest Transform(IApiPlaylistSessionContainer Container)
         {
-            TRequest clonedRequest = this.Request.JsonClone();
+            TRequest clonedRequest = Request.JsonClone();
 
-            clonedRequest.Url = this.GetTransformedUrl(Container);
+            clonedRequest.Url = GetTransformedUrl(Container);
 
             foreach (HttpHeader header in clonedRequest.Headers)
             {
                 if (header.Key.StartsWith("$", StringComparison.OrdinalIgnoreCase))
                 {
-                    header.Key = header.Key.Substring(1);
+                    header.Key = header.Key[1..];
 
-                    if (this.TryGetReplacement(header.Value, Container, out object v))
+                    if (TryGetReplacement(header.Value, Container, out object v))
                     {
                         header.Value = v.ToString();
                     }
@@ -295,20 +303,20 @@ namespace Penguin.Api.Shared
 
         bool IHttpPlaylistItem<TRequest, TResponse>.TryCreate(IHttpServerRequest request, IHttpServerResponse response, out IHttpPlaylistItem<TRequest, TResponse> item)
         {
-            bool r = this.TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
+            bool r = TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
             item = i;
             return r;
         }
 
         bool IHttpPlaylistItem.TryCreate(IHttpServerRequest request, IHttpServerResponse response, out IHttpPlaylistItem item)
         {
-            bool r = this.TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
+            bool r = TryCreate(request, response, out HttpPlaylistItem<TRequest, TResponse> i);
             item = i;
             return r;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
-        public virtual bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object value)
+        public virtual bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object v)
         {
             if (toReplace is null)
             {
@@ -324,17 +332,17 @@ namespace Penguin.Api.Shared
             {
                 string SourceId = toReplace.From("//").To("//");
 
-                XPathAttributeTransformation xPathAttributeTransformation = new XPathAttributeTransformation()
+                XPathAttributeTransformation xPathAttributeTransformation = new()
                 {
                     SourceAttribute = toReplace.FromLast("//"),
                     SourcePath = toReplace.From("//").From("//", true).ToLast("//")
                 };
 
-                return xPathAttributeTransformation.TryGetTransformedValue(Container.Interactions.Responses[SourceId], out value);
+                return xPathAttributeTransformation.TryGetTransformedValue(Container.Interactions.Responses[SourceId], out v);
             }
             else if (toReplace.StartsWith("@", StringComparison.OrdinalIgnoreCase))
             {
-                value = Container.SessionObjects.Get(toReplace.Substring(1));
+                v = Container.SessionObjects.Get(toReplace[1..]);
                 return true;
             }
             else if (toReplace.StartsWith("regex(", StringComparison.OrdinalIgnoreCase))
@@ -348,7 +356,7 @@ namespace Penguin.Api.Shared
                 string group = parameters[2].Trim();
                 string expression = parameters[3].Trim();
 
-                RegexTransformation rt = new RegexTransformation()
+                RegexTransformation rt = new()
                 {
                     SourceId = sourceId,
                     RegexExpression = expression,
@@ -358,15 +366,15 @@ namespace Penguin.Api.Shared
 
                 if (Container.Interactions.Responses.TryGetValue(sourceId, out IApiServerResponse response))
                 {
-                    return rt.TryGetTransformedValue(response, out value);
+                    return rt.TryGetTransformedValue(response, out v);
                 }
 
-                value = null;
+                v = null;
                 return false;
             }
             else
             {
-                if (toReplace.Contains("."))
+                if (toReplace.Contains('.'))
                 {
                     string sourceId = toReplace.To(".");
 
@@ -374,11 +382,11 @@ namespace Penguin.Api.Shared
 
                     if (Container.Interactions.Responses.TryGetValue(sourceId, out IApiServerResponse response))
                     {
-                        return response.TryGetValue(sourcePath, out value);
+                        return response.TryGetValue(sourcePath, out v);
                     }
                 }
 
-                value = null;
+                v = null;
                 return false;
             }
         }

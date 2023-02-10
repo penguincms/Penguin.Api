@@ -16,9 +16,9 @@ namespace Penguin.Api.Json
                 throw new ArgumentNullException(nameof(Container));
             }
 
-            (string sourceId, string sourcePath) = JsonTransformation.SplitPath(this.SourcePath);
+            (string sourceId, string sourcePath) = JsonTransformation.SplitPath(SourcePath);
 
-            return !Container.Interactions[sourceId].Response.TryGetValue(sourcePath, out object value) || !string.Equals(value.ToString(), this.SourceValue, this.ComparisonType);
+            return !Container.Interactions[sourceId].Response.TryGetValue(sourcePath, out object value) || !string.Equals(value.ToString(), SourceValue, ComparisonType);
         }
     }
 }

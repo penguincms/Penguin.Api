@@ -19,11 +19,11 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(destination));
             }
 
-            if (responseToCheck.Key == this.SourceId)
+            if (responseToCheck.Key == SourceId)
             {
-                if (this.TryGetTransformedValue(responseToCheck.Value, out object newValue))
+                if (TryGetTransformedValue(responseToCheck.Value, out object newValue))
                 {
-                    destination.SetValue(this.DestinationPath, newValue);
+                    destination.SetValue(DestinationPath, newValue);
                 }
             }
         }
@@ -35,10 +35,10 @@ namespace Penguin.Api.Shared
                 throw new System.ArgumentNullException(nameof(source));
             }
 
-            HtmlAgilityPack.HtmlDocument htmlDocument = new HtmlAgilityPack.HtmlDocument();
+            HtmlAgilityPack.HtmlDocument htmlDocument = new();
             htmlDocument.LoadHtml(source.Body);
-            HtmlNode signupFormIdElement = htmlDocument.DocumentNode.SelectSingleNode(this.SourcePath);
-            newValue = signupFormIdElement.GetAttributeValue(this.SourceAttribute, "");
+            HtmlNode signupFormIdElement = htmlDocument.DocumentNode.SelectSingleNode(SourcePath);
+            newValue = signupFormIdElement.GetAttributeValue(SourceAttribute, "");
             return true;
         }
     }

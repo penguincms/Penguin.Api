@@ -17,13 +17,13 @@ namespace Penguin.Api.Shared
 
             if (value.StartsWith("?", StringComparison.OrdinalIgnoreCase))
             {
-                this.Required = false;
-                this.Value = value.Substring(1);
+                Required = false;
+                Value = value[1..];
             }
             else
             {
-                this.Required = true;
-                this.Value = value;
+                Required = true;
+                Value = value;
             }
         }
     }

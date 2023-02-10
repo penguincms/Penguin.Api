@@ -8,6 +8,9 @@ namespace Penguin.Api.Shared
         {
         }
 
-        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<EmptyPayload, GenericResponsePayload> item) => this.TryCreate(request, response, (contentType) => string.IsNullOrWhiteSpace(contentType), out item);
+        public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<EmptyPayload, GenericResponsePayload> item)
+        {
+            return TryCreate(request, response, string.IsNullOrWhiteSpace, out item);
+        }
     }
 }

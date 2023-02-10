@@ -2,6 +2,9 @@
 {
     public class Guid : ObjectArray
     {
-        public override string GetNew(string index) => System.Guid.NewGuid().ToString();
+        public override string GetNew(string index)
+        {
+            return System.Guid.NewGuid().ToString();
+        }
     }
 }

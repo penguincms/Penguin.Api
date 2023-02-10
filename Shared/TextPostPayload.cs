@@ -7,10 +7,13 @@ namespace Penguin.Api.Shared
     {
         public TextPostPayload()
         {
-            this.Headers.Add("Accept", "text/plain, */*; q=0.01");
-            this.Headers.Add("Content-Type", "text/plain;charset=UTF-8");
+            Headers.Add("Accept", "text/plain, */*; q=0.01");
+            Headers.Add("Content-Type", "text/plain;charset=UTF-8");
         }
 
-        public override void SetValue(string path, object Value, string newPropName) => throw new NotImplementedException();
+        public override void SetValue(string path, object Value, string newPropName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

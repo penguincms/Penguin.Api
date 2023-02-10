@@ -16,10 +16,7 @@ namespace Penguin.Api.Playlist
         {
             get
             {
-                if (playlistTemplates is null)
-                {
-                    playlistTemplates = TypeFactory.GetAllImplementations<IHttpPlaylistItem>().Select(t => Activator.CreateInstance(t) as IHttpPlaylistItem).ToList();
-                }
+                playlistTemplates ??= TypeFactory.GetAllImplementations<IHttpPlaylistItem>().Select(t => Activator.CreateInstance(t) as IHttpPlaylistItem).ToList();
 
                 return playlistTemplates;
             }
@@ -27,12 +24,9 @@ namespace Penguin.Api.Playlist
 
         public static IPlaylistItem GetPlaylistItem(string Name, HttpServerInteraction interaction)
         {
-            if (interaction is null)
-            {
-                throw new ArgumentNullException(nameof(interaction));
-            }
-
-            return GetPlaylistItem(Name, interaction.Request, interaction.Response);
+            return interaction is null
+                ? throw new ArgumentNullException(nameof(interaction))
+                : GetPlaylistItem(Name, interaction.Request, interaction.Response);
         }
 
         public static IPlaylistItem GetPlaylistItem(string Name, HttpServerRequest request, HttpServerResponse response = null)
@@ -57,10 +51,7 @@ namespace Penguin.Api.Playlist
                 }
             }
 
-            if (item is null)
-            {
-                item = new UnsupportedHttpPlaylistItem(request, response);
-            }
+            item ??= new UnsupportedHttpPlaylistItem(request, response);
 
             item.Id = Name;
 

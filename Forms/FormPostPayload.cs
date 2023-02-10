@@ -6,20 +6,20 @@ namespace Penguin.Api.Forms
     {
         public FormPostPayload()
         {
-            this.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-            this.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+            Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+            Headers.Add("Content-Type", "application/x-www-form-urlencoded");
         }
 
         public override void SetValue(string path, object Value, string newPropName)
         {
             if (newPropName != null)
             {
-                this.Body.Remove(path);
-                this.Body.Add(newPropName, Value?.ToString());
+                Body.Remove(path);
+                Body.Add(newPropName, Value?.ToString());
             }
             else
             {
-                this.Body[path] = Value?.ToString();
+                Body[path] = Value?.ToString();
             }
         }
 
@@ -27,14 +27,14 @@ namespace Penguin.Api.Forms
         {
             if (!base.TryGetValue(path, out value))
             {
-                if (!this.Body.ContainsKey(path))
+                if (!Body.ContainsKey(path))
                 {
                     value = null;
                     return false;
                 }
                 else
                 {
-                    value = this.Body[path];
+                    value = Body[path];
                 }
             }
 

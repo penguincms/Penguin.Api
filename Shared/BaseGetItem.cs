@@ -8,12 +8,7 @@ namespace Penguin.Api.Shared
     {
         public override IApiServerInteraction<TRequest, TResponse> Execute(IApiPlaylistSessionContainer Container)
         {
-            if (Container is null)
-            {
-                throw new ArgumentNullException(nameof(Container));
-            }
-
-            return this.BuildResponse(Container);
+            return Container is null ? throw new ArgumentNullException(nameof(Container)) : BuildResponse(Container);
         }
 
         public override string GetBody(IApiPlaylistSessionContainer Container, TRequest request)
@@ -52,7 +47,7 @@ namespace Penguin.Api.Shared
 
             if (request.Method == "GET" && contentTypeCheck(checkContentType))
             {
-                HttpPlaylistItem<TRequest, TResponse> bi = Activator.CreateInstance(this.GetType()) as HttpPlaylistItem<TRequest, TResponse>;
+                HttpPlaylistItem<TRequest, TResponse> bi = Activator.CreateInstance(GetType()) as HttpPlaylistItem<TRequest, TResponse>;
 
                 item = bi;
 
@@ -67,6 +62,9 @@ namespace Penguin.Api.Shared
             }
         }
 
-        public bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, string targetContentType, out HttpPlaylistItem<TRequest, TResponse> item) => this.TryCreate(request, response, (ContentType) => ContentType.StartsWith(targetContentType, StringComparison.OrdinalIgnoreCase), out item);
+        public bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, string targetContentType, out HttpPlaylistItem<TRequest, TResponse> item)
+        {
+            return TryCreate(request, response, (ContentType) => ContentType.StartsWith(targetContentType, StringComparison.OrdinalIgnoreCase), out item);
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace Penguin.Api.Shared
 {
     public class SleepPlaylistItem : IPlaylistItem
     {
-        private static readonly Random random = new Random();
+        private static readonly Random random = new();
         List<IExecutionCondition> IPlaylistItem.Conditions { get; set; } = new List<IExecutionCondition>();
         public bool Enabled { get; set; }
         public bool Executed { get; }
@@ -15,12 +15,18 @@ namespace Penguin.Api.Shared
         public int MinimumWaitMs { get; set; }
         List<ITransformation> IPlaylistItem.Transformations { get; set; } = new List<ITransformation>();
 
-        public void Execute(IApiPlaylistSessionContainer Container) => System.Threading.Thread.Sleep(random.Next(this.MinimumWaitMs, this.MaximumWaitMs));
+        public void Execute(IApiPlaylistSessionContainer Container)
+        {
+            System.Threading.Thread.Sleep(random.Next(MinimumWaitMs, MaximumWaitMs));
+        }
 
         public void Reset()
         {
         }
 
-        public override string ToString() => $"Sleep {this.MinimumWaitMs}-{this.MaximumWaitMs}";
+        public override string ToString()
+        {
+            return $"Sleep {MinimumWaitMs}-{MaximumWaitMs}";
+        }
     }
 }

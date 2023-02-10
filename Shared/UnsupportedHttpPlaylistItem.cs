@@ -31,20 +31,29 @@ namespace Penguin.Api.Shared
                 throw new ArgumentNullException(nameof(hresponse));
             }
 
-            this.Method = hrequest.Method;
-            this.RequestContentType = hrequest.ContentType;
-            this.ResponseContentType = hresponse?.ContentType;
+            Method = hrequest.Method;
+            RequestContentType = hrequest.ContentType;
+            ResponseContentType = hresponse?.ContentType;
 
-            this.SetupHttpPlaylistItem(this, hrequest, hresponse);
+            SetupHttpPlaylistItem(this, hrequest, hresponse);
 
-            this.Enabled = false;
+            Enabled = false;
         }
 
-        public override IApiServerInteraction<EmptyPayload, GenericResponsePayload> Execute(IApiPlaylistSessionContainer Container) => throw new NotImplementedException();
+        public override IApiServerInteraction<EmptyPayload, GenericResponsePayload> Execute(IApiPlaylistSessionContainer Container)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override string GetBody(IApiPlaylistSessionContainer Container, EmptyPayload request) => throw new NotImplementedException();
+        public override string GetBody(IApiPlaylistSessionContainer Container, EmptyPayload request)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override string ToString() => $"UNSUPPORTED {this.Method} ({this.RequestContentType} => {this.ResponseContentType})";
+        public override string ToString()
+        {
+            return $"UNSUPPORTED {Method} ({RequestContentType} => {ResponseContentType})";
+        }
 
         public override bool TryCreate(IHttpServerRequest request, IHttpServerResponse response, out HttpPlaylistItem<EmptyPayload, GenericResponsePayload> item)
         {
