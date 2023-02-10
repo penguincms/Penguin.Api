@@ -7,7 +7,9 @@ namespace Penguin.Api.Forms
     public class FormTransformation : ITransformation
     {
         public string DestinationPath { get; set; }
+
         public string SourceId { get; set; }
+
         public string SourcePath { get; set; }
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)

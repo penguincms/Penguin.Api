@@ -8,6 +8,7 @@ namespace Penguin.Api.Playlist
     public class PlaylistConfiguration
     {
         public virtual string Key { get; set; }
+
         public virtual object Value { get; set; }
     }
 

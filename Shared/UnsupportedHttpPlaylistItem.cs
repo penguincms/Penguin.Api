@@ -8,7 +8,9 @@ namespace Penguin.Api.Shared
     public class UnsupportedHttpPlaylistItem : HttpPlaylistItem<EmptyPayload, GenericResponsePayload>
     {
         private string Method { get; set; }
+
         private string RequestContentType { get; set; }
+
         private string ResponseContentType { get; set; }
 
         public UnsupportedHttpPlaylistItem()

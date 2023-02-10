@@ -14,9 +14,13 @@ namespace Penguin.Api.Playlist
     public class ApiPlaylist : IList<IPlaylistItem>
     {
         public int Count => ((IList<IPlaylistItem>)Items).Count;
+
         public bool IsReadOnly => ((IList<IPlaylistItem>)Items).IsReadOnly;
+
         public Action<IApiServerInteraction> OnResponse { get; set; }
+
         protected List<IPlaylistItem> Items { get; set; } = new List<IPlaylistItem>();
+
         public IPlaylistItem this[int index] { get => ((IList<IPlaylistItem>)Items)[index]; set => ((IList<IPlaylistItem>)Items)[index] = value; }
 
         public void Add(IPlaylistItem item)

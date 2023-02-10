@@ -9,7 +9,9 @@ namespace Penguin.Api.Json
     public class JsonTransformation : ITransformation
     {
         public string DestinationPath { get; set; }
+
         public string SourceId { get; set; }
+
         public string SourcePath { get; set; }
 
         public static bool TryGetReplacement(string toReplace, IApiPlaylistSessionContainer Container, out object newValue)

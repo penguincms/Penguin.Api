@@ -9,7 +9,9 @@ namespace Penguin.Api.Shared
     public abstract class ApiPayload : IApiPayload
     {
         public HttpHeaderCollection Headers { get; set; } = new HttpHeaderCollection();
+
         IDictionary<string, string> IApiPayload.Headers => Headers;
+
         public string Url { get; set; }
 
         public virtual void SetValue(string path, object Value)

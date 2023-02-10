@@ -6,7 +6,9 @@ namespace Penguin.Api.Json
     public class JsonValueNotEquals : IExecutionCondition
     {
         public StringComparison ComparisonType { get; set; } = StringComparison.Ordinal;
+
         public string SourcePath { get; set; }
+
         public string SourceValue { get; set; }
 
         public bool ShouldExecute(IApiPlaylistSessionContainer Container)

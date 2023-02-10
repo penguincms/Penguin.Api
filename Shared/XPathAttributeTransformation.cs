@@ -8,8 +8,11 @@ namespace Penguin.Api.Shared
     public class XPathAttributeTransformation : ITransformation
     {
         public string DestinationPath { get; set; }
+
         public string SourceAttribute { get; set; }
+
         public string SourceId { get; set; }
+
         public string SourcePath { get; set; }
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)

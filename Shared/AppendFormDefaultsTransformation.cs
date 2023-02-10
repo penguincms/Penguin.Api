@@ -8,8 +8,11 @@ namespace Penguin.Api.Shared
     public class AppendFormDefaultsTransformation : ITransformation
     {
         string ITransformation.DestinationPath { get; set; }
+
         public string FormName { get; set; }
+
         public string SourceId { get; set; }
+
         string ITransformation.SourcePath { get; set; }
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)

@@ -9,9 +9,13 @@ namespace Penguin.Api.Playlist
     public class ApiPlaylistSessionContainer : IApiPlaylistSessionContainer, IDisposable
     {
         public IWebClient Client { get; set; } = new WebClientWrapper(new WebClientEx() { FollowRedirect = false });
+
         public bool DisposeAfterUse { get; set; }
+
         public IApiServerInteractionCollection Interactions { get; set; } = new ApiServerInteractionCollection();
+
         public IJavascriptEngine JavascriptEngine { get; set; } = new JavascriptEngineWrapper(new Jint.Engine());
+
         public IObjectArray SessionObjects { get; set; } = new ObjectArray();
 
         #region IDisposable Support

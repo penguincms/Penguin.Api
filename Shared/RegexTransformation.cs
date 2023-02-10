@@ -8,11 +8,17 @@ namespace Penguin.Api.Shared
     public class RegexTransformation : ITransformation
     {
         public string DestinationPath { get; set; }
+
         public int Group { get; set; }
+
         public int MatchIndex { get; set; }
+
         public string RegexExpression { get; set; }
+
         public string SourceId { get; set; }
+
         string ITransformation.SourcePath { get; set; }
+
         public string Value { get; set; }
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)

@@ -8,6 +8,7 @@ namespace Penguin.Api.Shared
     public class StandardTransformation : ITransformation
     {
         public string DestinationPath { get; set; }
+
         public string SourcePath { get; set; }
 
         public void Transform(KeyValuePair<string, IApiServerResponse> responseToCheck, IApiPayload destination)
