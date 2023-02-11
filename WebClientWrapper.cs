@@ -6,7 +6,9 @@ namespace Penguin.Api
     public class WebClientWrapper : IWebClient
     {
         public WebHeaderCollection Headers => Client.Headers;
+
         public WebHeaderCollection ResponseHeaders => Client.ResponseHeaders;
+
         private WebClient Client { get; set; }
 
         public WebClientWrapper(WebClient client)
