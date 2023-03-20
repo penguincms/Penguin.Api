@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
-    <PackageProjectUrl>https://github.com/PenguinCMS/Penguin.Api</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/PenguinCms/Penguin.Api</PackageProjectUrl>
     <DocumentationFile>Penguin.Api.xml</DocumentationFile>
     <Version>5.0.5</Version>
     <AssemblyName>Penguin.Api</AssemblyName>
@@ -10,16 +10,13 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
     <PackageReference Include="Loxifi.Extensions.StringExtensions" Version="0.1.0" />
     <PackageReference Include="Loxifi.TypeFactory" Version="0.2.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Penguin.SystemExtensions" Version="5.2.0" />
     <PackageReference Include="Penguin.Api.Abstractions" Version="5.2.0" />
     <PackageReference Include="Penguin.Web" Version="5.2.0" />
     <PackageReference Include="Penguin.Web.WebClientEx" Version="5.2.0" />
-    <PackageReference Include="Penguin.Reflection" Version="5.2.0" />
     <PackageReference Include="Penguin.Json" Version="5.2.0" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
