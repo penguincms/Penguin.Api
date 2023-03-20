@@ -1,4 +1,5 @@
 using Loxifi;
+using Loxifi.Extensions.StringExtensions;
 using Penguin.Api.Abstractions.Enumerations;
 using Penguin.Api.Abstractions.Extensions;
 using Penguin.Api.Abstractions.Interfaces;
@@ -14,6 +15,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net;
+using StringSplitOptions = Loxifi.Extensions.StringExtensions.StringSplitOptions;
 
 namespace Penguin.Api.Shared
 {
@@ -350,7 +352,7 @@ namespace Penguin.Api.Shared
             {
                 string val = toReplace.From("(").ToLast(")");
 
-                string[] parameters = val.SplitQuotedString().ToArray();
+                string[] parameters = val.Split(new StringSplitOptions()).ToArray();
 
                 string sourceId = parameters[0].Trim();
                 string match = parameters[1].Trim();
