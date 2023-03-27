@@ -13,11 +13,11 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
     <PackageReference Include="Loxifi.Extensions.StringExtensions" Version="0.1.0" />
-    <PackageReference Include="Loxifi.TypeFactory" Version="0.2.1" />
-    <PackageReference Include="Penguin.Api.Abstractions" Version="5.2.0" />
-    <PackageReference Include="Penguin.Web" Version="5.2.0" />
-    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.2.0" />
-    <PackageReference Include="Penguin.Json" Version="5.2.0" />
+    <PackageReference Include="Loxifi.TypeFactory" Version="0.9.0" />
+    <PackageReference Include="Penguin.Api.Abstractions" Version="5.4.0" />
+    <PackageReference Include="Penguin.Web" Version="5.4.0" />
+    <PackageReference Include="Penguin.Web.WebClientEx" Version="5.4.0" />
+    <PackageReference Include="Penguin.Json" Version="5.4.0" />
   </ItemGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
 </Project>

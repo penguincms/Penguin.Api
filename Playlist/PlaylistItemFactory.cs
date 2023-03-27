@@ -17,7 +17,7 @@ namespace Penguin.Api.Playlist
         {
             get
             {
-                playlistTemplates ??= TypeFactory.GetAllImplementations<IHttpPlaylistItem>().Select(t => Activator.CreateInstance(t) as IHttpPlaylistItem).ToList();
+                playlistTemplates ??= TypeFactory.Default.GetAllImplementations<IHttpPlaylistItem>().Select(t => Activator.CreateInstance(t) as IHttpPlaylistItem).ToList();
 
                 return playlistTemplates;
             }

@@ -59,7 +59,7 @@ namespace Penguin.Api.ObjectArrays
             }
             else
             {
-                Type arrayType = TypeFactory.GetAllImplementations<IObjectArray>().Single(t => t.Name == TypeName);
+                Type arrayType = TypeFactory.Default.GetAllImplementations<IObjectArray>().Single(t => t.Name == TypeName);
 
                 return arrayType;
             }
